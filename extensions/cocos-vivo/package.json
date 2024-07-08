@@ -1,0 +1,25 @@
+{
+    "$schema": "./@types/schema/package/index.json",
+    "package_version": 2,
+    "name": "cocos-vivo",
+    "version": "1.0.0",
+    "author": "onerain88",
+    "editor": ">=3.8.2",
+    "scripts": {
+        "preinstall": "node ./scripts/preinstall.js",
+        "build": "tsc"
+    },
+    "title": "i18n:cocos-vivo.title",
+    "description": "i18n:cocos-vivo.description",
+    "contributions": {
+        "builder": "./dist/builder.js"
+    },
+    "dependencies": {
+        "fs-extra": "^10.0.0"
+    },
+    "devDependencies": {
+        "@cocos/creator-types": "^3.8.2",
+        "@types/fs-extra": "^5.1.0",
+        "@types/node": "^18.17.1"
+    }
+}
