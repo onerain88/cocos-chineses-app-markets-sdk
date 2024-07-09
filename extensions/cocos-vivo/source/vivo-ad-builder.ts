@@ -11,13 +11,20 @@ import { BUILDER_OPTIONS, PARSE_OPTIONS, Utils } from './utils';
 export class VivoAdBuilder {
   public static afterBuild(options: ITaskOptions, result: IBuildResult) {
     VivoAdBuilder.copyDependencies();
+    VivoAdBuilder.copyJava();
     VivoAdBuilder.copyLibs();
     VivoAdBuilder.copyManifest(options);
     VivoAdBuilder.copyProguard();
+    VivoAdBuilder.copyRes();
+    Utils.addServices(result, 'com.cocos.vivo.ad.VivoAdService');
   }
 
   public static copyDependencies() {
     Utils.appendDependencies(`${Constants.NativePath}/app/build.gradle`, `${__dirname}/../ad/build.gradle`);
+  }
+
+  public static copyJava() {
+    fse.copySync(`${__dirname}/../ad/java/`, `${Constants.NativePath}/app/src/`);
   }
 
   public static copyLibs() {
@@ -89,5 +96,12 @@ export class VivoAdBuilder {
     for (const line of firstFileLines) {
       Utils.checkAndAppendLineIfNotExists(line, secondFileLines, proguardPath);
     }
+  }
+
+  public static copyRes() {
+    const srcResPath = `${__dirname}/../ad/res/`;
+    const destResPath = `${Constants.NativePath}/res/`;
+
+    fse.copySync(srcResPath, destResPath, { overwrite: true });
   }
 }

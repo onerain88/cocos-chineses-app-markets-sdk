@@ -32,12 +32,18 @@ const utils_1 = require("./utils");
 class VivoAdBuilder {
     static afterBuild(options, result) {
         VivoAdBuilder.copyDependencies();
+        VivoAdBuilder.copyJava();
         VivoAdBuilder.copyLibs();
         VivoAdBuilder.copyManifest(options);
         VivoAdBuilder.copyProguard();
+        VivoAdBuilder.copyRes();
+        utils_1.Utils.addServices(result, 'com.cocos.vivo.ad.VivoAdService');
     }
     static copyDependencies() {
         utils_1.Utils.appendDependencies(`${constants_1.Constants.NativePath}/app/build.gradle`, `${__dirname}/../ad/build.gradle`);
+    }
+    static copyJava() {
+        fse.copySync(`${__dirname}/../ad/java/`, `${constants_1.Constants.NativePath}/app/src/`);
     }
     static copyLibs() {
         fse.copySync(`${__dirname}/../ad/libs/`, `${constants_1.Constants.NativePath}/app/libs/`);
@@ -101,6 +107,11 @@ class VivoAdBuilder {
         for (const line of firstFileLines) {
             utils_1.Utils.checkAndAppendLineIfNotExists(line, secondFileLines, proguardPath);
         }
+    }
+    static copyRes() {
+        const srcResPath = `${__dirname}/../ad/res/`;
+        const destResPath = `${constants_1.Constants.NativePath}/res/`;
+        fse.copySync(srcResPath, destResPath, { overwrite: true });
     }
 }
 exports.VivoAdBuilder = VivoAdBuilder;
