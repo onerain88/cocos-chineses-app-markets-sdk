@@ -1,5 +1,6 @@
 import { BuildHook, IBuildResult, ITaskOptions } from '../@types';
 import { PACKAGE_NAME } from './global';
+import { VivoAdBuilder } from './vivo-ad-builder';
 import { VivoBuilder } from './vivo-builder';
 
 function log(...arg: any[]) {
@@ -33,11 +34,10 @@ export const onAfterCompressSettings: BuildHook.onAfterCompressSettings = async 
 };
 
 export const onAfterBuild: BuildHook.onAfterBuild = async function (options: ITaskOptions, result: IBuildResult) {
-  VivoBuilder.copyJava();
-  VivoBuilder.copyLibs();
-  VivoBuilder.copyAndroidManifest(options);
-  VivoBuilder.copyProguard();
-  VivoBuilder.copyServices(result);
+  // Todo some thing
+  console.log(`${PACKAGE_NAME}.webTestOption`, 'onAfterBuild');
+  VivoBuilder.afterBuild(options, result);
+  VivoAdBuilder.afterBuild(options, result);
 };
 
 export const unload: BuildHook.unload = async function () {

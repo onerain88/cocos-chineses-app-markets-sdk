@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.onAfterMake = exports.onBeforeMake = exports.onError = exports.unload = exports.onAfterBuild = exports.onAfterCompressSettings = exports.onBeforeCompressSettings = exports.onBeforeBuild = exports.load = exports.throwError = void 0;
 const global_1 = require("./global");
+const vivo_ad_builder_1 = require("./vivo-ad-builder");
 const vivo_builder_1 = require("./vivo-builder");
 function log(...arg) {
     return console.log(`[${global_1.PACKAGE_NAME}] `, ...arg);
@@ -48,11 +49,10 @@ const onAfterCompressSettings = function (options, result) {
 exports.onAfterCompressSettings = onAfterCompressSettings;
 const onAfterBuild = function (options, result) {
     return __awaiter(this, void 0, void 0, function* () {
-        vivo_builder_1.VivoBuilder.copyJava();
-        vivo_builder_1.VivoBuilder.copyLibs();
-        vivo_builder_1.VivoBuilder.copyAndroidManifest(options);
-        vivo_builder_1.VivoBuilder.copyProguard();
-        vivo_builder_1.VivoBuilder.copyServices(result);
+        // Todo some thing
+        console.log(`${global_1.PACKAGE_NAME}.webTestOption`, 'onAfterBuild');
+        vivo_builder_1.VivoBuilder.afterBuild(options, result);
+        vivo_ad_builder_1.VivoAdBuilder.afterBuild(options, result);
     });
 };
 exports.onAfterBuild = onAfterBuild;
