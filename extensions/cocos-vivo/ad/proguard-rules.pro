@@ -60,3 +60,82 @@
 -dontwarn com.vivo.network.okhttp3.Response
 -dontwarn com.vivo.network.okhttp3.ResponseBody
 -dontwarn com.vivo.network.okhttp3.vivo.monitor.DataReceivedCallback
+
+-keepattributes SourceFile,LineNumberTable
+-dontwarn com.squareup.okhttp.**
+-dontwarn okhttp3.**
+-keep class com.vivo.*.** { *; }
+-dontwarn com.bytedance.article.common.nativecrash.NativeCrashInit
+-keep class com.bytedance.sdk.openadsdk.** {*;}
+-keep public interface com.bytedance.sdk.openadsdk.downloadnew.** {*;}
+-keep class com.pgl.sys.ces.* {*;}
+-keep class com.qq.e.** {
+ public protected *;
+}
+-keep class android.support.v4.**{
+ public *;
+}
+-keep class android.support.v7.widget.** {*;}
+-dontwarn com.vivo.secboxsdk.**
+-keep class com.vivo.secboxsdk.SecBoxCipherException { *; }
+-keep class com.vivo.secboxsdk.jni.SecBoxNative { *; }
+-keep class com.vivo.secboxsdk.BuildConfig { *; }
+-keep class com.vivo.advv.**{*;}
+-keep class com.kwad.sdk.** { *;}
+-keep class com.ksad.download.** { *;}
+-keep class com.kwai.filedownloader.** { *;}
+# sdk
+-keep class com.bun.miitmdid.** { *; }
+-keep interface com.bun.supplier.** { *; }
+# asus
+-keep class com.asus.msa.SupplementaryDID.** { *; }
+-keep class com.asus.msa.sdid.** { *; }
+# freeme
+-keep class com.android.creator.** { *; }
+-keep class com.android.msasdk.** { *; }
+# huawei
+-keep class com.huawei.hms.ads.** { *; }
+-keep interface com.huawei.hms.ads.** {*; }
+# lenovo
+-keep class com.zui.deviceidservice.** { *; }
+-keep class com.zui.opendeviceidlibrary.** { *; }
+# meizu
+-keep class com.meizu.flyme.openidsdk.** { *; }
+# nubia
+-keep class com.bun.miitmdid.provider.nubia.NubiaIdentityImpl { *; }
+# oppo
+-keep class com.heytap.openid.** { *; }
+# samsung
+-keep class com.samsung.android.deviceidservice.** { *; }
+# vivo
+-keep class com.vivo.identifier.** { *; }
+# xiaomi
+-keep class com.bun.miitmdid.provider.xiaomi.IdentifierManager { *; }
+# zte
+-keep class com.bun.lib.** { *; }
+# coolpad
+-keep class com.coolpad.deviceidsupport.** { *; }
+# ---------掌酷 SDK--------------
+-keep class com.wrapper.ZkViewSDK {
+ public <fields>;
+ public <methods>;
+}
+-keep class com.wrapper.ZkViewSDK$ActionCallBack {
+ public <fields>;
+ public <methods>;
+}
+# 保留枚举类不被混淆
+-keepclassmembers enum * {
+ public static **[] values();
+ public static ** valueOf(java.lang.String);
+}
+-keep class com.wrapper.ZkViewSDK$KEY {
+ public <fields>;
+ public <methods>;
+}
+-keep class com.wrapper.ZkViewSDK$Event {
+ public <fields>;
+ public <methods>;
+}
+-keeppackagenames com.zk.**
+# ---------掌酷 SDK--------------

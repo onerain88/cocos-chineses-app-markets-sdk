@@ -53,6 +53,7 @@ class VivoAdBuilder {
         const parser = new fast_xml_parser_1.XMLParser(utils_1.PARSE_OPTIONS);
         const androidManifest = parser.parse(fs.readFileSync(manifestPath, { encoding: 'binary' }));
         const manifest = androidManifest['manifest'];
+        manifest['@_xmlns:tools'] = 'http://schemas.android.com/tools';
         // 属性
         const application = manifest['application'];
         application['@_tools:replace'] = 'android:allowBackup';
