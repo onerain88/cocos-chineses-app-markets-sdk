@@ -34,6 +34,8 @@ export class Demo extends Component {
       mediaId: '188bd66d899a46fa9521354dd5a43115'
     }
     native.jsbBridgeWrapper.dispatchEventToNative('vivo_ad_init', JSON.stringify(vivoAdInitData));
+    native.jsbBridgeWrapper.dispatchEventToNative('sdk_init');
+
 
     log('Demo 初始化');
     native.jsbBridgeWrapper.addNativeEventListener('vivo_ad_load_reward_ad_ready', this.loadRewardedAdReady);
@@ -53,7 +55,9 @@ export class Demo extends Component {
     log('键盘事件', event.keyCode);
     if (event.keyCode === KeyCode.BACKSPACE) {
       // 退出
-      native.jsbBridgeWrapper.dispatchEventToNative('vivo_on_back_pressed');
+      // native.jsbBridgeWrapper.dispatchEventToNative('vivo_on_back_pressed');
+      native.jsbBridgeWrapper.dispatchEventToNative('sdk_exit_game');
+
     }
   }
 

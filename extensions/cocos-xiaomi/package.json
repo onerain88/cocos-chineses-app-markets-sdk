@@ -1,0 +1,26 @@
+{
+    "$schema": "./@types/schema/package/index.json",
+    "package_version": 2,
+    "name": "cocos-xiaomi",
+    "version": "1.0.0",
+    "author": "onerain88",
+    "editor": ">=3.8.2",
+    "scripts": {
+        "preinstall": "node ./scripts/preinstall.js",
+        "build": "tsc"
+    },
+    "title": "i18n:cocos-xiaomi.title",
+    "description": "i18n:cocos-xiaomi.description",
+    "contributions": {
+        "builder": "./dist/builder.js"
+    },
+    "dependencies": {
+        "fast-xml-parser": "^4.4.0",
+        "fs-extra": "^10.0.0"
+    },
+    "devDependencies": {
+        "@cocos/creator-types": "^3.8.2",
+        "@types/fs-extra": "^5.0.4",
+        "@types/node": "^18.17.1"
+    }
+}

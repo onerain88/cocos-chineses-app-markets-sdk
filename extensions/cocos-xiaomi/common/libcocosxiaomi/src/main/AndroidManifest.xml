@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <application>
+    <meta-data android:name="miGameAppId" android:value="${XiaoMiAppId}"/>
+    <meta-data android:name="miGameAppKey" android:value="${XiaoMiAppKey}"/>
+    <meta-data android:name="miGameEnhance" android:value="true"/>
+    <provider android:name="com.xiaomi.gamecenter.sdk.MiOauthProvider" android:authorities="${applicationId}.mi_provider" android:enabled="true" android:exported="false"/>
+  </application>
+</manifest>

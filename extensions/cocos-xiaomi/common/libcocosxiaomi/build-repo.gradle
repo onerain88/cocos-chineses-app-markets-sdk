@@ -1,0 +1,12 @@
+allprojects {
+  repositories {
+      //增加小米游戏SDK的Maven仓库地址
+      maven {
+          url "https://repos.xiaomi.com/maven"
+          credentials {
+              username 'mi-gamesdk'
+              password 'AKCp8mYeLuhuaGj6bK1XK7t2w4CsPuGwg6GpQdZ9cat7K59y5sD7Tx3dHjJcFrBGj3TQ4vi7g'
+          }
+      }
+  }
+}
