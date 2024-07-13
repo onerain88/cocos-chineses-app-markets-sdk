@@ -4,6 +4,11 @@ android {
     compileSdkVersion PROP_COMPILE_SDK_VERSION.toInteger()
     namespace 'com.cocos.xiaomi'
 
+    sourceSets.main {
+        java.srcDirs "src/main"
+        manifest.srcFile "src/main/AndroidManifest.xml"
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -23,4 +28,9 @@ dependencies {
     implementation "com.alipay.sdk:alipaysdk-android:15.8.09@aar"
     implementation "com.xiaomi.gamecenter.sdk:mioauth:$lastVersion"
     implementation "com.xiaomi.gamecenter.sdk:onetrack-sdk:2.2.1"
+}
+
+dependencies {
+    implementation project(':libservice')
+    implementation project(':libcocos')
 }

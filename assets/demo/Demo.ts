@@ -33,9 +33,10 @@ export class Demo extends Component {
     const vivoAdInitData = {
       mediaId: '188bd66d899a46fa9521354dd5a43115'
     }
+
     native.jsbBridgeWrapper.dispatchEventToNative('vivo_ad_init', JSON.stringify(vivoAdInitData));
     native.jsbBridgeWrapper.dispatchEventToNative('sdk_init');
-
+    native.jsbBridgeWrapper.dispatchEventToNative('sdk_ad_init_event');
 
     log('Demo 初始化');
     native.jsbBridgeWrapper.addNativeEventListener('vivo_ad_load_reward_ad_ready', this.loadRewardedAdReady);
@@ -66,7 +67,8 @@ export class Demo extends Component {
       posId: 'b042370b5b0e40479423438643f6c408'
     }
 
-    native.jsbBridgeWrapper.dispatchEventToNative('vivo_ad_loadRewardedAd', JSON.stringify(loadRewardedAdData));
+    // native.jsbBridgeWrapper.dispatchEventToNative('vivo_ad_loadRewardedAd', JSON.stringify(loadRewardedAdData));
+    native.jsbBridgeWrapper.dispatchEventToNative('sdk_ad_load_rewarded_ad_event');
   }
 }
 

@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.onAfterMake = exports.onBeforeMake = exports.onError = exports.unload = exports.onAfterBuild = exports.onAfterCompressSettings = exports.onBeforeCompressSettings = exports.onBeforeBuild = exports.load = exports.throwError = void 0;
 const global_1 = require("./global");
+const xiaomi_ad_builder_1 = require("./xiaomi-ad-builder");
 const xiaomi_builder_1 = require("./xiaomi-builder");
 function log(...arg) {
     return console.log(`[${global_1.PACKAGE_NAME}] `, ...arg);
@@ -47,7 +48,8 @@ const onAfterCompressSettings = function (options, result) {
 exports.onAfterCompressSettings = onAfterCompressSettings;
 const onAfterBuild = function (options, result) {
     return __awaiter(this, void 0, void 0, function* () {
-        xiaomi_builder_1.XiaomiBuilder.afterBuild(options, result);
+        xiaomi_builder_1.XiaoMiBuilder.afterBuild(options, result);
+        xiaomi_ad_builder_1.XiaoMiAdBuilder.afterBuild(options, result);
     });
 };
 exports.onAfterBuild = onAfterBuild;

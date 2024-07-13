@@ -1,6 +1,7 @@
 import { BuildHook, IBuildResult, ITaskOptions } from '../@types';
 import { PACKAGE_NAME } from './global';
-import { XiaomiBuilder } from './xiaomi-builder';
+import { XiaoMiAdBuilder } from './xiaomi-ad-builder';
+import { XiaoMiBuilder as XiaoMiBuilder } from './xiaomi-builder';
 
 function log(...arg: any[]) {
   return console.log(`[${PACKAGE_NAME}] `, ...arg);
@@ -31,7 +32,8 @@ export const onAfterCompressSettings: BuildHook.onAfterCompressSettings = async 
 };
 
 export const onAfterBuild: BuildHook.onAfterBuild = async function (options: ITaskOptions, result: IBuildResult) {
-  XiaomiBuilder.afterBuild(options, result);
+  XiaoMiBuilder.afterBuild(options, result);
+  XiaoMiAdBuilder.afterBuild(options, result);
 };
 
 export const unload: BuildHook.unload = async function () {

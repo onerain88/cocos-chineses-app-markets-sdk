@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.XiaomiBuilder = exports.BUILDER_OPTIONS = exports.PARSE_OPTIONS = void 0;
+exports.XiaoMiBuilder = exports.BUILDER_OPTIONS = exports.PARSE_OPTIONS = void 0;
 const fs_1 = __importDefault(require("fs"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const fast_xml_parser_1 = require("fast-xml-parser");
@@ -23,7 +23,7 @@ exports.BUILDER_OPTIONS = {
     suppressEmptyNode: true,
     format: true,
 };
-class XiaomiBuilder {
+class XiaoMiBuilder {
     static afterBuild(options, result) {
         // 1. 修改 libcocosxiaomi 中 AndroidManifest.xml 的配置
         console.log(options.packages);
@@ -54,28 +54,26 @@ class XiaomiBuilder {
         const includeLibXiaoMi = "include ':libcocosxiaomi'";
         let pos = projSettings.indexOf(includeLibXiaoMi);
         if (pos < 0) {
-            fs_1.default.writeFileSync(settingsPath, projSettings + "\n " + includeLibXiaoMi);
+            fs_1.default.writeFileSync(settingsPath, projSettings + "\n" + includeLibXiaoMi + "\n");
         }
         // 4. 添加子模块依赖
         const appBuildGradlePath = `${constants_1.Constants.NativePath}/app/build.gradle`;
         const appBuildGradle = fs_1.default.readFileSync(appBuildGradlePath, { encoding: 'binary' });
-        const dependentXiaoMiModule = `
-        dependencies {
-            implementation project(':libcocosxiaomi')
-        }`;
+        const dependentXiaoMiModule = `dependencies {
+    implementation project(':libcocosxiaomi')
+}`;
         pos = appBuildGradle.indexOf(dependentXiaoMiModule);
         if (pos < 0) {
-            fs_1.default.writeFileSync(appBuildGradlePath, appBuildGradle + "\n " + dependentXiaoMiModule);
+            fs_1.default.writeFileSync(appBuildGradlePath, appBuildGradle + "\n" + dependentXiaoMiModule + "\n");
         }
-        // 4. 添加依赖
-        // 4.1 添加依赖仓库
+        // 5. 添加依赖仓库
         const projectBuildGradlePath = `${result.dest}/proj/build.gradle`;
         const projectBuildGradle = fs_1.default.readFileSync(projectBuildGradlePath, { encoding: 'binary' });
         const applyXiaoMiRepo = 'apply from: RES_PATH + "/proj/libcocosxiaomi/build-repo.gradle"';
         pos = projectBuildGradle.indexOf(applyXiaoMiRepo);
         if (pos < 0) {
-            fs_1.default.writeFileSync(projectBuildGradlePath, projectBuildGradle + "\n " + applyXiaoMiRepo);
+            fs_1.default.writeFileSync(projectBuildGradlePath, projectBuildGradle + "\n" + applyXiaoMiRepo + "\n");
         }
     }
 }
-exports.XiaomiBuilder = XiaomiBuilder;
+exports.XiaoMiBuilder = XiaoMiBuilder;
