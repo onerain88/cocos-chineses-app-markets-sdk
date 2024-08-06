@@ -46,6 +46,7 @@ public class HuaWeiAdService implements SDKWrapper.SDKInterface {
                 @Override
                 public void onRewardedLoaded() {
                     Log.i(Constants.TAG, "Loaded rewarded ad");
+                    JsbBridgeWrapper.getInstance().dispatchEventToScript(Constants.AD_LOAD_REWARDED_READY);
                     rewardAd.show(SDKWrapper.shared().getActivity(), new RewardAdStatusListener() {
                         @Override
                         public void onRewarded(Reward reward) {
@@ -58,6 +59,7 @@ public class HuaWeiAdService implements SDKWrapper.SDKInterface {
                 @Override
                 public void onRewardAdFailedToLoad(int i) {
                     Log.i(Constants.TAG, "Load rewarded ad failed: " + i);
+                    JsbBridgeWrapper.getInstance().dispatchEventToScript(Constants.AD_LOAD_REWARDED_FAILED, "Load rewarded ad failed: " + i);
                 }
             });
         }
