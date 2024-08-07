@@ -1,0 +1,12 @@
+dependencies {
+    implementation fileTree(dir: "${RES_PATH}/proj/libcocosvivo/libs", includes: ['*.aar'])
+}
+
+android {
+    sourceSets.main {
+        java.srcDirs += "${RES_PATH}/proj/libcocosvivo/java"
+        jniLibs.srcDirs += "${RES_PATH}/proj/libcocosvivo/libs"
+        res.srcDirs += "${RES_PATH}/proj/libcocosvivo/res"
+        manifest.srcFile "${RES_PATH}/proj/AndroidManifest.xml"
+    }
+}

@@ -1,64 +1,68 @@
-import { _decorator, Component, director, EventKeyboard, input, Input, KeyCode, log, native, Node } from 'cc';
+import { _decorator, Component, director, EventKeyboard, input, Input, KeyCode, Label, log, native, Node, sys } from 'cc';
 const { ccclass, property } = _decorator;
+
+const INIT = 'ccams_init';
+const EXIT_GAME = 'ccams_exit_game';
+
+const AD_INIT = 'ccams_ad_init';
+const AD_LOAD_REWARD_AD = 'ccams_ad_load_rewarded_ad';
+const AD_LOAD_REWARD_AD_READY = 'ccams_ad_load_reward_ad_ready';
+const AD_LOAD_REWARD_AD_FAILED = 'ccams_ad_load_reward_ad_failed';
+const AD_LOAD_REWARDED_AD_VERIFY = 'ccams_ad_load_reward_ad_verify';
 
 @ccclass('Demo')
 export class Demo extends Component {
+  @property(Label)
+  public infoLabel: Label = null;
+
   private loadRewardedAdReady: native.OnNativeEventListener = () => {
     log(`demo: vivo_ad_loadRewardedAd 加载完成`);
-    log(`_test: ${this._test}`);
-    this._test = 1;
+    this.infoLabel.string = 'vivo_ad_loadRewardedAd 加载完成'
   };
 
   private loadRewardedAdVerify: native.OnNativeEventListener = () => {
     log(`demo: vivo_ad_loadRewardedAd 确认完成`);
-    log(`_test: ${this._test}`);
-    this._test = 2;
+    this.infoLabel.string = 'vivo_ad_loadRewardedAd 确认完成'
   }
 
   private loadRewardedAdFailed: native.OnNativeEventListener = (err) => {
     log(`demo: vivo_ad_loadRewardedAd 加载失败: ${err}`);
-    log(`_test: ${this._test}`);
-    this._test = 3;
+    this.infoLabel.string = `demo: vivo_ad_loadRewardedAd 加载失败: ${err}`
   }
 
-  private _test: number = 0;
 
   protected onLoad(): void {
     director.addPersistRootNode(this.node);
     log('注册键盘事件');
     input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
     // 初始化
-    native.jsbBridgeWrapper.dispatchEventToNative('vivo_init');
+    native.jsbBridgeWrapper.dispatchEventToNative(INIT);
+
     // 初始化 Vivo 广告 SDK
     const vivoAdInitData = {
       mediaId: '188bd66d899a46fa9521354dd5a43115'
     }
-
-    native.jsbBridgeWrapper.dispatchEventToNative('vivo_ad_init', JSON.stringify(vivoAdInitData));
-    native.jsbBridgeWrapper.dispatchEventToNative('sdk_init');
-    native.jsbBridgeWrapper.dispatchEventToNative('sdk_ad_init_event');
+    native.jsbBridgeWrapper.dispatchEventToNative(AD_INIT, JSON.stringify(vivoAdInitData));
 
     log('Demo 初始化');
-    native.jsbBridgeWrapper.addNativeEventListener('vivo_ad_load_reward_ad_ready', this.loadRewardedAdReady);
-    native.jsbBridgeWrapper.addNativeEventListener('vivo_ad_load_reward_ad_verify', this.loadRewardedAdVerify);
-    native.jsbBridgeWrapper.addNativeEventListener('vivo_ad_load_reward_ad_failed', this.loadRewardedAdFailed);
+    native.jsbBridgeWrapper.addNativeEventListener(AD_LOAD_REWARD_AD_READY, this.loadRewardedAdReady);
+    native.jsbBridgeWrapper.addNativeEventListener(AD_LOAD_REWARDED_AD_VERIFY, this.loadRewardedAdVerify);
+    native.jsbBridgeWrapper.addNativeEventListener(AD_LOAD_REWARD_AD_FAILED, this.loadRewardedAdFailed);
   }
 
   protected onDestroy(): void {
     input.off(Input.EventType.KEY_DOWN, this.onKeyDown, this);
 
-    native.jsbBridgeWrapper.removeNativeEventListener('vivo_ad_load_reward_ad_ready', this.loadRewardedAdReady);
-    native.jsbBridgeWrapper.removeNativeEventListener('vivo_ad_load_reward_ad_verify', this.loadRewardedAdVerify);
-    native.jsbBridgeWrapper.removeNativeEventListener('vivo_ad_load_reward_ad_failed', this.loadRewardedAdFailed);
+    native.jsbBridgeWrapper.removeNativeEventListener(AD_LOAD_REWARD_AD_READY, this.loadRewardedAdReady);
+    native.jsbBridgeWrapper.removeNativeEventListener(AD_LOAD_REWARDED_AD_VERIFY, this.loadRewardedAdVerify);
+    native.jsbBridgeWrapper.removeNativeEventListener(AD_LOAD_REWARD_AD_FAILED, this.loadRewardedAdFailed);
   }
 
   private onKeyDown(event: EventKeyboard) {
     log('键盘事件', event.keyCode);
     if (event.keyCode === KeyCode.BACKSPACE) {
       // 退出
-      // native.jsbBridgeWrapper.dispatchEventToNative('vivo_on_back_pressed');
-      native.jsbBridgeWrapper.dispatchEventToNative('sdk_exit_game');
-
+      native.jsbBridgeWrapper.dispatchEventToNative(EXIT_GAME);
     }
   }
 
@@ -67,8 +71,7 @@ export class Demo extends Component {
       posId: 'b042370b5b0e40479423438643f6c408'
     }
 
-    // native.jsbBridgeWrapper.dispatchEventToNative('vivo_ad_loadRewardedAd', JSON.stringify(loadRewardedAdData));
-    native.jsbBridgeWrapper.dispatchEventToNative('sdk_ad_load_rewarded_ad_event');
+    native.jsbBridgeWrapper.dispatchEventToNative(AD_LOAD_REWARD_AD, JSON.stringify(loadRewardedAdData));
   }
 }
 

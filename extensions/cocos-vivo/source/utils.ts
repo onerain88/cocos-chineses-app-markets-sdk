@@ -7,7 +7,7 @@ export const PARSE_OPTIONS: X2jOptions = {
   ignoreAttributes: false,
   isArray: (tagName: string, jPath: string, isLeafNode: boolean, isAttribute: boolean) => {
     return tagName === "provider" || tagName === "activity" || tagName === "service" || tagName === "receiver" ||
-      tagName === "meta-data" || tagName === "uses-permission";
+      tagName === "meta-data" || tagName === "uses-permission" || tagName === "meta-data" || tagName === "uses-library";
   }
 }
 
