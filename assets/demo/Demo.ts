@@ -1,14 +1,19 @@
 import { _decorator, Component, director, EventKeyboard, input, Input, KeyCode, Label, log, native, Node, sys } from 'cc';
 const { ccclass, property } = _decorator;
 
+// 通用
 const INIT = 'ccams_init';
 const EXIT_GAME = 'ccams_exit_game';
 
+// 广告
 const AD_INIT = 'ccams_ad_init';
+// 激励视频
 const AD_LOAD_REWARD_AD = 'ccams_ad_load_rewarded_ad';
 const AD_LOAD_REWARD_AD_READY = 'ccams_ad_load_reward_ad_ready';
 const AD_LOAD_REWARD_AD_FAILED = 'ccams_ad_load_reward_ad_failed';
 const AD_LOAD_REWARDED_AD_VERIFY = 'ccams_ad_load_reward_ad_verify';
+// 插屏
+const AD_LOAD_INTERSTITIAL_AD = 'ccams_ad_load_interstitial_ad';
 
 @ccclass('Demo')
 export class Demo extends Component {
@@ -72,6 +77,10 @@ export class Demo extends Component {
     }
 
     native.jsbBridgeWrapper.dispatchEventToNative(AD_LOAD_REWARD_AD, JSON.stringify(loadRewardedAdData));
+  }
+
+  private onLoadInterstitialAdButtonClicked() {
+    native.jsbBridgeWrapper.dispatchEventToNative(AD_LOAD_INTERSTITIAL_AD);
   }
 }
 
