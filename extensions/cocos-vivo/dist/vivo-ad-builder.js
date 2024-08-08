@@ -27,29 +27,21 @@ exports.VivoAdBuilder = void 0;
 const fs = __importStar(require("fs"));
 const fse = __importStar(require("fs-extra"));
 const fast_xml_parser_1 = require("fast-xml-parser");
-const constants_1 = require("./constants");
 const utils_1 = require("./utils");
 class VivoAdBuilder {
     static afterBuild(options, result) {
-        VivoAdBuilder.copyDependencies();
-        VivoAdBuilder.copyJava();
-        VivoAdBuilder.copyLibs();
-        VivoAdBuilder.copyManifest(options);
-        VivoAdBuilder.copyProguard();
-        VivoAdBuilder.copyRes();
+        VivoAdBuilder.copyModule(result);
+        VivoAdBuilder.copyManifest(options, result);
         utils_1.Utils.addServices(result, 'com.cocos.vivo.ad.VivoAdService');
     }
-    static copyDependencies() {
-        utils_1.Utils.appendDependencies(`${constants_1.Constants.NativePath}/app/build.gradle`, `${__dirname}/../ad/build.gradle`);
+    static copyModule(result) {
+        fse.copySync(`${__dirname}/../ad/`, `${result.dest}/proj/libcocosvivo/`);
+        // 追加内容
+        fse.appendFileSync(`${result.dest}/proj/build-ccams.gradle`, `\n${fs.readFileSync(`${result.dest}/proj/libcocosvivo/build.gradle`, { encoding: 'binary' })}`);
+        fse.appendFileSync(`${result.dest}/proj/proguard-rules-ccams.pro`, `\n${fs.readFileSync(`${result.dest}/proj/libcocosvivo/proguard-rules.pro`, { encoding: 'binary' })}`);
     }
-    static copyJava() {
-        fse.copySync(`${__dirname}/../ad/java/`, `${constants_1.Constants.NativePath}/app/src/`);
-    }
-    static copyLibs() {
-        fse.copySync(`${__dirname}/../ad/libs/`, `${constants_1.Constants.NativePath}/app/libs/`);
-    }
-    static copyManifest(options) {
-        const manifestPath = `${constants_1.Constants.NativePath}/app/AndroidManifest.xml`;
+    static copyManifest(options, result) {
+        const manifestPath = `${result.dest}/proj/AndroidManifest.xml`;
         const parser = new fast_xml_parser_1.XMLParser(utils_1.PARSE_OPTIONS);
         const androidManifest = parser.parse(fs.readFileSync(manifestPath, { encoding: 'binary' }));
         const manifest = androidManifest['manifest'];
@@ -99,20 +91,6 @@ class VivoAdBuilder {
       `);
         const builder = new fast_xml_parser_1.XMLBuilder(utils_1.BUILDER_OPTIONS);
         fs.writeFileSync(manifestPath, builder.build(androidManifest));
-    }
-    static copyProguard() {
-        const vivoProguardPath = `${__dirname}/../ad/proguard-rules.pro`;
-        const proguardPath = `${constants_1.Constants.NativePath}/app/proguard-rules.pro`;
-        const firstFileLines = utils_1.Utils.readFileLines(vivoProguardPath);
-        const secondFileLines = utils_1.Utils.readFileLines(proguardPath);
-        for (const line of firstFileLines) {
-            utils_1.Utils.checkAndAppendLineIfNotExists(line, secondFileLines, proguardPath);
-        }
-    }
-    static copyRes() {
-        const srcResPath = `${__dirname}/../ad/res/`;
-        const destResPath = `${constants_1.Constants.NativePath}/res/`;
-        fse.copySync(srcResPath, destResPath, { overwrite: true });
     }
 }
 exports.VivoAdBuilder = VivoAdBuilder;

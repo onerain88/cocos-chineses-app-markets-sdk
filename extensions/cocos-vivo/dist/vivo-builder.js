@@ -32,23 +32,26 @@ const utils_1 = require("./utils");
 const fast_xml_parser_1 = require("fast-xml-parser");
 class VivoBuilder {
     static afterBuild(options, result) {
-        VivoBuilder.copyJava();
-        VivoBuilder.copyLibs();
-        VivoBuilder.copyAndroidManifest(options);
-        VivoBuilder.copyProguard();
+        VivoBuilder.copyModule(result);
+        VivoBuilder.newAndroidManifest(options, result);
+        VivoBuilder.includeProguard(result);
+        VivoBuilder.applyModuleBuild();
         utils_1.Utils.addServices(result, 'com.cocos.vivo.VivoService');
     }
-    static copyJava() {
-        fse.copySync(`${__dirname}/../union/java/`, `${constants_1.Constants.NativePath}/app/src/`);
+    static copyModule(result) {
+        fse.copySync(`${__dirname}/../common/`, `${result.dest}/proj/libcocosvivo/`);
+        fse.copySync(`${result.dest}/proj/libcocosvivo/build.gradle`, `${result.dest}/proj/build-ccams.gradle`);
+        fse.copySync(`${result.dest}/proj/libcocosvivo/proguard-rules.pro`, `${result.dest}/proj/proguard-rules-ccams.pro`);
     }
-    static copyLibs() {
-        fse.copySync(`${__dirname}/../union/libs/`, `${constants_1.Constants.NativePath}/app/libs/`);
-    }
-    static copyAndroidManifest(options) {
+    static newAndroidManifest(options, result) {
+        // 1. 克隆 app/AndroidManifest.xml 到 proj 下
+        const appManifestPath = `${constants_1.Constants.NativePath}/app/AndroidManifest.xml`;
+        const projManifestPath = `${result.dest}/proj/AndroidManifest.xml`;
+        fse.copySync(appManifestPath, projManifestPath);
+        // 2. 修改 proj/AndroidManifest.xml
         const { appId, appType } = options.packages[global_1.PACKAGE_NAME];
-        const manifestPath = `${constants_1.Constants.NativePath}/app/AndroidManifest.xml`;
         const parser = new fast_xml_parser_1.XMLParser(utils_1.PARSE_OPTIONS);
-        const androidManifest = parser.parse(fs.readFileSync(manifestPath, { encoding: 'binary' }));
+        const androidManifest = parser.parse(fs.readFileSync(projManifestPath, { encoding: 'binary' }));
         const manifest = androidManifest['manifest'];
         utils_1.Utils.addComponent('provider', manifest, `
       <provider 
@@ -57,25 +60,40 @@ class VivoBuilder {
         android:enabled="true" 
         android:exported="true"/>
         `);
-        utils_1.Utils.addMetaData(manifest, `
+        utils_1.Utils.addComponent('meta-data', manifest, `
       <meta-data 
         android:name="vivoUnionAppId" 
         android:value="${appId}"/>
         `);
-        utils_1.Utils.addMetaData(manifest, `
+        utils_1.Utils.addComponent('meta-data', manifest, `
       <meta-data 
         android:name="vivoUnionAppType" 
         android:value="${appType}"/>`);
         const builder = new fast_xml_parser_1.XMLBuilder(utils_1.BUILDER_OPTIONS);
-        fs.writeFileSync(manifestPath, builder.build(androidManifest));
+        fs.writeFileSync(projManifestPath, builder.build(androidManifest));
+        // 3. 指向 proj/AndroidManifest.xml
+        // 已在预制 libcocosvivo/build.gradle 中指定
     }
-    static copyProguard() {
-        const vivoProguardPath = `${__dirname}/../union/proguard-rules.pro`;
+    static includeProguard(result) {
+        // 拷贝 proguard-rules.pro
+        fse.copySync(`${result.dest}/proj/libcocosvivo/proguard-rules.pro`, `${result.dest}/proj/proguard-rules-ccams.pro`);
+        // 使用 -include 语法
         const proguardPath = `${constants_1.Constants.NativePath}/app/proguard-rules.pro`;
-        const firstFileLines = utils_1.Utils.readFileLines(vivoProguardPath);
-        const secondFileLines = utils_1.Utils.readFileLines(proguardPath);
-        for (const line of firstFileLines) {
-            utils_1.Utils.checkAndAppendLineIfNotExists(line, secondFileLines, proguardPath);
+        const proguard = fs.readFileSync(proguardPath, { encoding: 'binary' });
+        const includeOppoProguard = `-include "${result.dest}/proj/proguard-rules-ccams.pro"`;
+        const pos = proguard.indexOf(includeOppoProguard);
+        if (pos < 0) {
+            fs.writeFileSync(proguardPath, proguard + "\n" + includeOppoProguard + "\n");
+        }
+    }
+    static applyModuleBuild() {
+        // 设置 build.gradle
+        const appBuildGradlePath = `${constants_1.Constants.NativePath}/app/build.gradle`;
+        const appBuildGradle = fs.readFileSync(appBuildGradlePath, { encoding: 'binary' });
+        const applyModuleBuild = `apply from: RES_PATH + "/proj/build-ccams.gradle"`;
+        const pos = appBuildGradle.indexOf(applyModuleBuild);
+        if (pos < 0) {
+            fs.writeFileSync(appBuildGradlePath, appBuildGradle + "\n" + applyModuleBuild + "\n");
         }
     }
 }

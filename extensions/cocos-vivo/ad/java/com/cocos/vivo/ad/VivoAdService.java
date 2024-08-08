@@ -22,8 +22,8 @@ public class VivoAdService implements SDKWrapper.SDKInterface {
     @Override
     public void init(Context context) {
         // 注册桥接函数
-        JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.BRIDGE_PREFIX + "init", initListener);
-        JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.BRIDGE_PREFIX + "loadRewardedAd", loadRewardedAdListener);
+        JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.AD_INIT, initListener);
+        JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.AD_LOAD_REWARDED_AD, loadRewardedAdListener);
     }
 
     private final JsbBridgeWrapper.OnScriptEventListener initListener = new JsbBridgeWrapper.OnScriptEventListener() {
@@ -58,7 +58,7 @@ public class VivoAdService implements SDKWrapper.SDKInterface {
         public void onAdReady() {
             Log.i(TAG, "Rewarded Ad onAdReady");
             Log.i(TAG, "Rewarded Ad price: " + rewardedVideoAd.getPrice());
-            JsbBridgeWrapper.getInstance().dispatchEventToScript("vivo_ad_load_reward_ad_ready");
+            JsbBridgeWrapper.getInstance().dispatchEventToScript(Constants.AD_LOAD_REWARDED_READY);
             rewardedVideoAd.sendWinNotification(rewardedVideoAd.getPrice());
             rewardedVideoAd.showAd(SDKWrapper.shared().getActivity());
         }
@@ -66,7 +66,7 @@ public class VivoAdService implements SDKWrapper.SDKInterface {
         @Override
         public void onAdFailed(VivoAdError vivoAdError) {
             Log.i(TAG, "Rewarded Ad onAdFailed: " + vivoAdError);
-            JsbBridgeWrapper.getInstance().dispatchEventToScript("vivo_ad_load_reward_ad_failed", vivoAdError.toString());
+            JsbBridgeWrapper.getInstance().dispatchEventToScript(Constants.AD_LOAD_REWARDED_FAILED, vivoAdError.toString());
         }
 
         @Override
@@ -87,7 +87,7 @@ public class VivoAdService implements SDKWrapper.SDKInterface {
         @Override
         public void onRewardVerify() {
             Log.i(TAG, "Rewarded Ad onRewardVerify");
-            JsbBridgeWrapper.getInstance().dispatchEventToScript("vivo_ad_load_reward_ad_verify");
+            JsbBridgeWrapper.getInstance().dispatchEventToScript(Constants.AD_SHOW_REWARD_VERIFY);
         }
     };
 

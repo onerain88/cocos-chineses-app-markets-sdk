@@ -31,7 +31,7 @@ exports.PARSE_OPTIONS = {
     ignoreAttributes: false,
     isArray: (tagName, jPath, isLeafNode, isAttribute) => {
         return tagName === "provider" || tagName === "activity" || tagName === "service" || tagName === "receiver" ||
-            tagName === "meta-data" || tagName === "uses-permission";
+            tagName === "meta-data" || tagName === "uses-permission" || tagName === "meta-data" || tagName === "uses-library";
     }
 };
 exports.BUILDER_OPTIONS = {

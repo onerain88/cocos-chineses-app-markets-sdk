@@ -15,27 +15,27 @@ public class VivoService implements SDKWrapper.SDKInterface {
 
   @Override
   public void init(Context context) {
-    Log.i("Sudoku", "init");
+    Log.i(Constants.TAG, "VivoService init");
     cocosActivity = (CocosActivity) context;
-    JsbBridgeWrapper.getInstance().addScriptEventListener("vivo_init", new JsbBridgeWrapper.OnScriptEventListener() {
+    JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.INIT, new JsbBridgeWrapper.OnScriptEventListener() {
       @Override
       public void onScriptEvent(String arg) {
-        Log.i("Sudoku", "Handle initVivo");
+        Log.i(Constants.TAG, "Vivo SDK init");
         VivoUnionSDK.onPrivacyAgreed(cocosActivity);
         VivoUnionSDK.setDynamicShortcuts(cocosActivity, true, new DynamicShortcutsCallback() {
           @Override
           public void onDynamicShortcutsStatus(int status) {
             // status = 1表示操作成功；其他错误值含义见文档
-            Log.d("Sudoku", "setDynamicShortcuts status: " + status);
+            Log.d(Constants.TAG, "setDynamicShortcuts status: " + status);
           }
         });
       }
     });
-    JsbBridgeWrapper.getInstance().addScriptEventListener("vivo_on_back_pressed",
+    JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.EXIT_GAME,
         new JsbBridgeWrapper.OnScriptEventListener() {
           @Override
           public void onScriptEvent(String arg) {
-            Log.i("Sudoku", "Handle onBackPressed");
+            Log.i(Constants.TAG, "Vivo SDK exit game");
             VivoUnionSDK.exit(cocosActivity, new VivoExitCallback() {
               @Override
               public void onExitCancel() {
@@ -44,8 +44,7 @@ public class VivoService implements SDKWrapper.SDKInterface {
 
               @Override
               public void onExitConfirm() {
-                // TODO
-                cocosActivity.finish();
+                android.os.Process.killProcess(android.os.Process.myPid());
               }
             });
           }
