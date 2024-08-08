@@ -13,6 +13,8 @@ import com.vivo.mobilead.manager.VivoAdManager;
 import com.vivo.mobilead.model.VAdConfig;
 import com.vivo.mobilead.unified.base.AdParams;
 import com.vivo.mobilead.unified.base.VivoAdError;
+import com.vivo.mobilead.unified.interstitial.UnifiedVivoInterstitialAd;
+import com.vivo.mobilead.unified.interstitial.UnifiedVivoInterstitialAdListener;
 import com.vivo.mobilead.unified.reward.UnifiedVivoRewardVideoAd;
 import com.vivo.mobilead.unified.reward.UnifiedVivoRewardVideoAdListener;
 
@@ -24,11 +26,20 @@ public class VivoAdService implements SDKWrapper.SDKInterface {
         // 注册桥接函数
         JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.AD_INIT, initListener);
         JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.AD_LOAD_REWARDED_AD, loadRewardedAdListener);
+        JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.AD_LOAD_INTERSTITIAL_AD, loadInterstitialAdListener);
+    }
+
+    @Override
+    public void onDestroy() {
+        JsbBridgeWrapper.getInstance().removeScriptEventListener(Constants.AD_INIT, initListener);
+        JsbBridgeWrapper.getInstance().removeScriptEventListener(Constants.AD_LOAD_REWARDED_AD, loadRewardedAdListener);
+        JsbBridgeWrapper.getInstance().removeScriptEventListener(Constants.AD_LOAD_INTERSTITIAL_AD, loadInterstitialAdListener);
     }
 
     private final JsbBridgeWrapper.OnScriptEventListener initListener = new JsbBridgeWrapper.OnScriptEventListener() {
         @Override
         public void onScriptEvent(String arg) {
+            Log.i(TAG, "Vivo ad init");
             try {
                 JSONObject data = new JSONObject(arg);
                 VAdConfig config = new VAdConfig.Builder()
@@ -94,6 +105,7 @@ public class VivoAdService implements SDKWrapper.SDKInterface {
     private final JsbBridgeWrapper.OnScriptEventListener loadRewardedAdListener = new JsbBridgeWrapper.OnScriptEventListener() {
         @Override
         public void onScriptEvent(String arg) {
+            Log.i(TAG, "Vivo ad load reward ad");
             try {
                 JSONObject data = new JSONObject(arg);
                 AdParams params = new AdParams.Builder(data.getString("posId"))
@@ -103,6 +115,46 @@ public class VivoAdService implements SDKWrapper.SDKInterface {
             } catch (Exception e) {
                 Log.e(TAG, "Vivo ad load rewarded ad exception: " + e);
             }
+        }
+    };
+
+    private UnifiedVivoInterstitialAd interstitialAd;
+
+    private final JsbBridgeWrapper.OnScriptEventListener loadInterstitialAdListener = new JsbBridgeWrapper.OnScriptEventListener() {
+        @Override
+        public void onScriptEvent(String arg) {
+            Log.i(TAG, "Vivo ad load interstitial ad");
+            String posId = "591a9892ac5d47c3a2dc5b9e16eb1f85";
+            AdParams.Builder builder = new AdParams.Builder(posId);
+            interstitialAd = new UnifiedVivoInterstitialAd(SDKWrapper.shared().getActivity(), builder.build(), new UnifiedVivoInterstitialAdListener() {
+                @Override
+                public void onAdReady() {
+                    Log.i(TAG, "Vivo ad load interstitial ad ready");
+                    interstitialAd.sendWinNotification(0);
+                    interstitialAd.showVideoAd(SDKWrapper.shared().getActivity());
+                }
+
+                @Override
+                public void onAdFailed(VivoAdError vivoAdError) {
+                    Log.i(TAG, "Vivo ad load interstitial ad failed: " + vivoAdError);
+                }
+
+                @Override
+                public void onAdClick() {
+                    Log.i(TAG, "Vivo ad load interstitial ad click");
+                }
+
+                @Override
+                public void onAdShow() {
+                    Log.i(TAG, "Vivo ad load interstitial ad show");
+                }
+
+                @Override
+                public void onAdClose() {
+                    Log.i(TAG, "Vivo ad load interstitial ad close");
+                }
+            });
+            interstitialAd.loadVideoAd();
         }
     };
 }
