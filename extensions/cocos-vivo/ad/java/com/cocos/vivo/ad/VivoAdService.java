@@ -41,10 +41,9 @@ public class VivoAdService implements SDKWrapper.SDKInterface {
         public void onScriptEvent(String arg) {
             Log.i(TAG, "Vivo ad init");
             try {
-                JSONObject data = new JSONObject(arg);
                 VAdConfig config = new VAdConfig.Builder()
                         .setDebug(BuildConfig.DEBUG)
-                        .setMediaId(data.getString("mediaId"))
+                        .setMediaId("188bd66d899a46fa9521354dd5a43115")
                         .build();
                 VivoAdManager.getInstance().init(SDKWrapper.shared().getActivity().getApplication(), config, new VInitCallback() {
                     @Override
@@ -107,8 +106,7 @@ public class VivoAdService implements SDKWrapper.SDKInterface {
         public void onScriptEvent(String arg) {
             Log.i(TAG, "Vivo ad load reward ad");
             try {
-                JSONObject data = new JSONObject(arg);
-                AdParams params = new AdParams.Builder(data.getString("posId"))
+                AdParams params = new AdParams.Builder("b042370b5b0e40479423438643f6c408")
                         .build();
                 rewardedVideoAd = new UnifiedVivoRewardVideoAd(SDKWrapper.shared().getActivity(), params, rewardedVideoAdListener);
                 rewardedVideoAd.loadAd();

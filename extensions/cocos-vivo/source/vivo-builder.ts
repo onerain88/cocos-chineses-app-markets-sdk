@@ -9,19 +9,18 @@ import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 export class VivoBuilder {
   public static afterBuild(options: ITaskOptions, result: IBuildResult) {
     VivoBuilder.copyModule(result);
-    VivoBuilder.newAndroidManifest(options, result);
-    VivoBuilder.includeProguard(result);
+    VivoBuilder.copyAndroidManifest(options, result);
+    VivoBuilder.copyProguard(result);
+    VivoBuilder.copyBuild(result);
     VivoBuilder.applyModuleBuild();
     Utils.addServices(result, 'com.cocos.vivo.VivoService');
   }
 
   private static copyModule(result: IBuildResult) {
     fse.copySync(`${__dirname}/../common/`, `${result.dest}/proj/libcocosvivo/`);
-    fse.copySync(`${result.dest}/proj/libcocosvivo/build.gradle`, `${result.dest}/proj/build-ccams.gradle`);
-    fse.copySync(`${result.dest}/proj/libcocosvivo/proguard-rules.pro`, `${result.dest}/proj/proguard-rules-ccams.pro`);
   }
 
-  private static newAndroidManifest(options: ITaskOptions, result: IBuildResult) {
+  private static copyAndroidManifest(options: ITaskOptions, result: IBuildResult) {
     // 1. 克隆 app/AndroidManifest.xml 到 proj 下
     const appManifestPath = `${Constants.NativePath}/app/AndroidManifest.xml`;
     const projManifestPath = `${result.dest}/proj/AndroidManifest.xml`;
@@ -57,17 +56,12 @@ export class VivoBuilder {
     // 已在预制 libcocosvivo/build.gradle 中指定
   }
 
-  private static includeProguard(result: IBuildResult) {
-    // 拷贝 proguard-rules.pro
-    fse.copySync(`${result.dest}/proj/libcocosvivo/proguard-rules.pro`, `${result.dest}/proj/proguard-rules-ccams.pro`)
-    // 使用 -include 语法
-    const proguardPath = `${Constants.NativePath}/app/proguard-rules.pro`;
-    const proguard = fs.readFileSync(proguardPath, { encoding: 'binary' });
-    const includeOppoProguard = `-include "${result.dest}/proj/proguard-rules-ccams.pro"`;
-    const pos = proguard.indexOf(includeOppoProguard);
-    if (pos < 0) {
-      fs.writeFileSync(proguardPath, proguard + "\n" + includeOppoProguard + "\n");
-    }
+  private static copyBuild(result: IBuildResult) {
+    fse.copySync(`${result.dest}/proj/libcocosvivo/build.gradle`, `${result.dest}/proj/build-ccams.gradle`);
+  }
+
+  private static copyProguard(result: IBuildResult) {
+    fse.copySync(`${result.dest}/proj/libcocosvivo/proguard-rules.pro`, `${result.dest}/proj/proguard-rules.pro`)
   }
 
   private static applyModuleBuild() {
