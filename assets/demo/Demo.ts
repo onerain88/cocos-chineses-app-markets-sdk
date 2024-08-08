@@ -44,10 +44,7 @@ export class Demo extends Component {
     native.jsbBridgeWrapper.dispatchEventToNative(INIT);
 
     // 初始化 Vivo 广告 SDK
-    const vivoAdInitData = {
-      mediaId: '188bd66d899a46fa9521354dd5a43115'
-    }
-    native.jsbBridgeWrapper.dispatchEventToNative(AD_INIT, JSON.stringify(vivoAdInitData));
+    native.jsbBridgeWrapper.dispatchEventToNative(AD_INIT);
 
     log('Demo 初始化');
     native.jsbBridgeWrapper.addNativeEventListener(AD_LOAD_REWARD_AD_READY, this.loadRewardedAdReady);
@@ -72,11 +69,7 @@ export class Demo extends Component {
   }
 
   private onLoadRewardedAdButtonClicked() {
-    const loadRewardedAdData = {
-      posId: 'b042370b5b0e40479423438643f6c408'
-    }
-
-    native.jsbBridgeWrapper.dispatchEventToNative(AD_LOAD_REWARD_AD, JSON.stringify(loadRewardedAdData));
+    native.jsbBridgeWrapper.dispatchEventToNative(AD_LOAD_REWARD_AD);
   }
 
   private onLoadInterstitialAdButtonClicked() {
