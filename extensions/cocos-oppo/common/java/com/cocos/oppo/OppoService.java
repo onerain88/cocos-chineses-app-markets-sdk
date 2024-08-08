@@ -12,14 +12,14 @@ public class OppoService implements SDKWrapper.SDKInterface {
   @Override
   public void init(Context context) {
     // 注册桥接事件
-    JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.INIT_EVENT, initListener);
-    JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.EXIT_GAME_EVENT, exitGameListener);
+    JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.INIT, initListener);
+    JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.EXIT_GAME, exitGameListener);
   }
 
   @Override
   public void onDestroy() {
-    JsbBridgeWrapper.getInstance().removeScriptEventListener(Constants.INIT_EVENT, initListener);
-    JsbBridgeWrapper.getInstance().removeScriptEventListener(Constants.EXIT_GAME_EVENT, exitGameListener);
+    JsbBridgeWrapper.getInstance().removeScriptEventListener(Constants.INIT, initListener);
+    JsbBridgeWrapper.getInstance().removeScriptEventListener(Constants.EXIT_GAME, exitGameListener);
   }
 
   private final JsbBridgeWrapper.OnScriptEventListener initListener = new JsbBridgeWrapper.OnScriptEventListener() {

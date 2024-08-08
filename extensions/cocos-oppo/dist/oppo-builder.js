@@ -33,8 +33,9 @@ const utils_1 = require("./utils");
 class OppoBuilder {
     static afterBuild(options, result) {
         OppoBuilder.copyModule(result);
-        OppoBuilder.includeProguard(result);
-        OppoBuilder.copyAndroidManifest(options);
+        OppoBuilder.copyAndroidManifest(options, result);
+        OppoBuilder.copyProguard(result);
+        OppoBuilder.copyBuild(result);
         OppoBuilder.applyModuleBuild();
         utils_1.Utils.addServices(result, 'com.cocos.oppo.OppoService');
     }
@@ -51,24 +52,30 @@ class OppoBuilder {
             fs.writeFileSync(proguardPath, proguard + "\n" + includeOppoProguard + "\n");
         }
     }
-    static copyAndroidManifest(options) {
+    static copyAndroidManifest(options, result) {
+        // 1. 克隆 app/AndroidManifest.xml 到 proj 下
+        const appManifestPath = `${constants_1.Constants.NativePath}/app/AndroidManifest.xml`;
+        const projManifestPath = `${result.dest}/proj/AndroidManifest.xml`;
+        fse.copySync(appManifestPath, projManifestPath);
+        // 2. 修改 proj/AndroidManifest.xml
         const { appKey, debugMode, isOfflineGame } = options.packages[global_1.PACKAGE_NAME];
-        console.log(`oppo params: ${appKey}, ${debugMode}, ${isOfflineGame}`);
-        const manifestPath = `${constants_1.Constants.NativePath}/app/AndroidManifest.xml`;
         const parser = new fast_xml_parser_1.XMLParser(utils_1.PARSE_OPTIONS);
-        const androidManifest = parser.parse(fs.readFileSync(manifestPath, { encoding: 'binary' }));
+        const androidManifest = parser.parse(fs.readFileSync(projManifestPath, { encoding: 'binary' }));
         const manifest = androidManifest['manifest'];
-        utils_1.Utils.addMetaData(manifest, `
+        manifest['@_xmlns:tools'] = 'http://schemas.android.com/tools';
+        const application = manifest['application'];
+        application['@_tools:replace'] = 'android:allowBackup';
+        utils_1.Utils.addComponent('meta-data', manifest, `
       <meta-data 
         android:name="app_key" 
         android:value="${appKey}"/>
         `);
-        utils_1.Utils.addMetaData(manifest, `
+        utils_1.Utils.addComponent('meta-data', manifest, `
       <meta-data 
         android:name="debug_mode" 
         android:value="${debugMode}"/>
         `);
-        utils_1.Utils.addMetaData(manifest, `
+        utils_1.Utils.addComponent('meta-data', manifest, `
       <meta-data 
         android:name="is_offline_game" 
         android:value="${isOfflineGame}"/>
@@ -77,13 +84,19 @@ class OppoBuilder {
       <uses-library android:name="org.apache.http.legacy" android:required="false" />
       `);
         const builder = new fast_xml_parser_1.XMLBuilder(utils_1.BUILDER_OPTIONS);
-        fs.writeFileSync(manifestPath, builder.build(androidManifest));
+        fs.writeFileSync(projManifestPath, builder.build(androidManifest));
+    }
+    static copyBuild(result) {
+        fse.copySync(`${result.dest}/proj/libcocosoppo/build.gradle`, `${result.dest}/proj/build-ccams.gradle`);
+    }
+    static copyProguard(result) {
+        fse.copySync(`${result.dest}/proj/libcocosoppo/proguard-rules.pro`, `${result.dest}/proj/proguard-rules.pro`);
     }
     static applyModuleBuild() {
         // 设置 build.gradle
         const appBuildGradlePath = `${constants_1.Constants.NativePath}/app/build.gradle`;
         const appBuildGradle = fs.readFileSync(appBuildGradlePath, { encoding: 'binary' });
-        const applyModuleBuild = `apply from: RES_PATH + "/proj/libcocosoppo/build-app.gradle"`;
+        const applyModuleBuild = `apply from: RES_PATH + "/proj/build-ccams.gradle"`;
         const pos = appBuildGradle.indexOf(applyModuleBuild);
         if (pos < 0) {
             fs.writeFileSync(appBuildGradlePath, appBuildGradle + "\n" + applyModuleBuild + "\n");

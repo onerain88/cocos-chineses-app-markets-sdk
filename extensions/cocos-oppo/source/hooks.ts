@@ -1,5 +1,6 @@
 import { BuildHook, IBuildResult, ITaskOptions } from '../@types';
 import { PACKAGE_NAME } from './global';
+import { OppoAdBuilder } from './oppo-ad-builder';
 import { OppoBuilder } from './oppo-builder';
 
 function log(...arg: any[]) {
@@ -33,6 +34,7 @@ export const onAfterCompressSettings: BuildHook.onAfterCompressSettings = async 
 
 export const onAfterBuild: BuildHook.onAfterBuild = async function (options: ITaskOptions, result: IBuildResult) {
   OppoBuilder.afterBuild(options, result);
+  OppoAdBuilder.afterBuild(options, result);
 };
 
 export const unload: BuildHook.unload = async function () {

@@ -1,0 +1,21 @@
+dependencies {
+    implementation fileTree(dir: "${RES_PATH}/proj/libcocosoppo/libs", includes: ['*.aar', '*.jar'])
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+}
+
+android {
+    sourceSets.main {
+        java.srcDirs += "${RES_PATH}/proj/libcocosoppo/java"
+        jniLibs.srcDirs += "${RES_PATH}/proj/libcocosoppo/libs"
+        res.srcDirs += "${RES_PATH}/proj/libcocosoppo/res"
+        manifest.srcFile "${RES_PATH}/proj/AndroidManifest.xml"
+    }
+}
+
+android {
+  buildTypes {
+    release {
+      proguardFiles += "${RES_PATH}/proj/proguard-rules.pro"
+    }
+  }
+}
