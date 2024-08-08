@@ -31,16 +31,18 @@ const utils_1 = require("./utils");
 class VivoAdBuilder {
     static afterBuild(options, result) {
         VivoAdBuilder.copyModule(result);
-        VivoAdBuilder.copyManifest(options, result);
+        VivoAdBuilder.appendManifest(options, result);
+        VivoAdBuilder.appendProguard(result);
+        VivoAdBuilder.appendBuild(result);
         utils_1.Utils.addServices(result, 'com.cocos.vivo.ad.VivoAdService');
     }
     static copyModule(result) {
         fse.copySync(`${__dirname}/../ad/`, `${result.dest}/proj/libcocosvivo/`);
-        // 追加内容
-        fse.appendFileSync(`${result.dest}/proj/build-ccams.gradle`, `\n${fs.readFileSync(`${result.dest}/proj/libcocosvivo/build.gradle`, { encoding: 'binary' })}`);
-        fse.appendFileSync(`${result.dest}/proj/proguard-rules-ccams.pro`, `\n${fs.readFileSync(`${result.dest}/proj/libcocosvivo/proguard-rules.pro`, { encoding: 'binary' })}`);
     }
-    static copyManifest(options, result) {
+    static appendBuild(result) {
+        fse.appendFileSync(`${result.dest}/proj/build-ccams.gradle`, `\n${fs.readFileSync(`${result.dest}/proj/libcocosvivo/build.gradle`, { encoding: 'binary' })}`);
+    }
+    static appendManifest(options, result) {
         const manifestPath = `${result.dest}/proj/AndroidManifest.xml`;
         const parser = new fast_xml_parser_1.XMLParser(utils_1.PARSE_OPTIONS);
         const androidManifest = parser.parse(fs.readFileSync(manifestPath, { encoding: 'binary' }));
@@ -91,6 +93,9 @@ class VivoAdBuilder {
       `);
         const builder = new fast_xml_parser_1.XMLBuilder(utils_1.BUILDER_OPTIONS);
         fs.writeFileSync(manifestPath, builder.build(androidManifest));
+    }
+    static appendProguard(result) {
+        fse.appendFileSync(`${result.dest}/proj/proguard-rules.pro`, `\n${fs.readFileSync(`${result.dest}/proj/libcocosvivo/proguard-rules.pro`, { encoding: 'binary' })}`);
     }
 }
 exports.VivoAdBuilder = VivoAdBuilder;

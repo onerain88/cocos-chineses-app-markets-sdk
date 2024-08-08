@@ -10,18 +10,21 @@ import { BUILDER_OPTIONS, PARSE_OPTIONS, Utils } from './utils';
 export class VivoAdBuilder {
   public static afterBuild(options: ITaskOptions, result: IBuildResult) {
     VivoAdBuilder.copyModule(result);
-    VivoAdBuilder.copyManifest(options, result);
+    VivoAdBuilder.appendManifest(options, result);
+    VivoAdBuilder.appendProguard(result);
+    VivoAdBuilder.appendBuild(result);
     Utils.addServices(result, 'com.cocos.vivo.ad.VivoAdService');
   }
 
   private static copyModule(result: IBuildResult) {
     fse.copySync(`${__dirname}/../ad/`, `${result.dest}/proj/libcocosvivo/`);
-    // 追加内容
-    fse.appendFileSync(`${result.dest}/proj/build-ccams.gradle`, `\n${fs.readFileSync(`${result.dest}/proj/libcocosvivo/build.gradle`, { encoding: 'binary' })}`)
-    fse.appendFileSync(`${result.dest}/proj/proguard-rules-ccams.pro`, `\n${fs.readFileSync(`${result.dest}/proj/libcocosvivo/proguard-rules.pro`, { encoding: 'binary' })}`);
   }
 
-  public static copyManifest(options: ITaskOptions, result: IBuildResult) {
+  private static appendBuild(result: IBuildResult) {
+    fse.appendFileSync(`${result.dest}/proj/build-ccams.gradle`, `\n${fs.readFileSync(`${result.dest}/proj/libcocosvivo/build.gradle`, { encoding: 'binary' })}`)
+  }
+
+  private static appendManifest(options: ITaskOptions, result: IBuildResult) {
     const manifestPath = `${result.dest}/proj/AndroidManifest.xml`;
 
     const parser = new XMLParser(PARSE_OPTIONS);
@@ -75,5 +78,9 @@ export class VivoAdBuilder {
 
     const builder = new XMLBuilder(BUILDER_OPTIONS);
     fs.writeFileSync(manifestPath, builder.build(androidManifest));
+  }
+
+  private static appendProguard(result: IBuildResult) {
+    fse.appendFileSync(`${result.dest}/proj/proguard-rules.pro`, `\n${fs.readFileSync(`${result.dest}/proj/libcocosvivo/proguard-rules.pro`, { encoding: 'binary' })}`);
   }
 }

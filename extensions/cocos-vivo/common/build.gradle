@@ -10,3 +10,11 @@ android {
         manifest.srcFile "${RES_PATH}/proj/AndroidManifest.xml"
     }
 }
+
+android {
+  buildTypes {
+    release {
+      proguardFiles += "${RES_PATH}/proj/proguard-rules.pro"
+    }
+  }
+}
