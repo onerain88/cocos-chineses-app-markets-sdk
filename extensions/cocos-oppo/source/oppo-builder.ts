@@ -9,8 +9,9 @@ import { BUILDER_OPTIONS, PARSE_OPTIONS, Utils } from './utils';
 export class OppoBuilder {
   public static afterBuild(options: ITaskOptions, result: IBuildResult) {
     OppoBuilder.copyModule(result);
-    OppoBuilder.includeProguard(result);
-    OppoBuilder.copyAndroidManifest(options);
+    OppoBuilder.copyAndroidManifest(options, result);
+    OppoBuilder.copyProguard(result);
+    OppoBuilder.copyBuild(result);
     OppoBuilder.applyModuleBuild();
     Utils.addServices(result, 'com.cocos.oppo.OppoService');
   }
@@ -19,38 +20,35 @@ export class OppoBuilder {
     fse.copySync(`${__dirname}/../common/`, `${result.dest}/proj/libcocosoppo/`);
   }
 
-  private static includeProguard(result: IBuildResult) {
-    // 使用 -include 语法
-    const proguardPath = `${Constants.NativePath}/app/proguard-rules.pro`;
-    const proguard = fs.readFileSync(proguardPath, { encoding: 'binary' });
-    const includeOppoProguard = `-include "${result.dest}/proj/libcocosoppo/proguard-rules.pro"`;
-    const pos = proguard.indexOf(includeOppoProguard);
-    if (pos < 0) {
-      fs.writeFileSync(proguardPath, proguard + "\n" + includeOppoProguard + "\n");
-    }
-  }
+  private static copyAndroidManifest(options: ITaskOptions, result: IBuildResult) {
+    // 1. 克隆 app/AndroidManifest.xml 到 proj 下
+    const appManifestPath = `${Constants.NativePath}/app/AndroidManifest.xml`;
+    const projManifestPath = `${result.dest}/proj/AndroidManifest.xml`;
+    fse.copySync(appManifestPath, projManifestPath);
 
-  private static copyAndroidManifest(options: ITaskOptions) {
+    // 2. 修改 proj/AndroidManifest.xml
     const { appKey, debugMode, isOfflineGame } = options.packages[PACKAGE_NAME];
-    console.log(`oppo params: ${appKey}, ${debugMode}, ${isOfflineGame}`);
-
-    const manifestPath = `${Constants.NativePath}/app/AndroidManifest.xml`;
 
     const parser = new XMLParser(PARSE_OPTIONS);
-    const androidManifest = parser.parse(fs.readFileSync(manifestPath, { encoding: 'binary' }));
+    const androidManifest = parser.parse(fs.readFileSync(projManifestPath, { encoding: 'binary' }));
 
     const manifest = androidManifest['manifest'];
-    Utils.addMetaData(manifest, `
+    manifest['@_xmlns:tools'] = 'http://schemas.android.com/tools';
+
+    const application = manifest['application'];
+    application['@_tools:replace'] = 'android:allowBackup';
+
+    Utils.addComponent('meta-data', manifest, `
       <meta-data 
         android:name="app_key" 
         android:value="${appKey}"/>
         `);
-    Utils.addMetaData(manifest, `
+    Utils.addComponent('meta-data', manifest, `
       <meta-data 
         android:name="debug_mode" 
         android:value="${debugMode}"/>
         `);
-    Utils.addMetaData(manifest, `
+    Utils.addComponent('meta-data', manifest, `
       <meta-data 
         android:name="is_offline_game" 
         android:value="${isOfflineGame}"/>
@@ -60,14 +58,22 @@ export class OppoBuilder {
       `);
 
     const builder = new XMLBuilder(BUILDER_OPTIONS);
-    fs.writeFileSync(manifestPath, builder.build(androidManifest));
+    fs.writeFileSync(projManifestPath, builder.build(androidManifest));
+  }
+
+  private static copyBuild(result: IBuildResult) {
+    fse.copySync(`${result.dest}/proj/libcocosoppo/build.gradle`, `${result.dest}/proj/build-ccams.gradle`);
+  }
+
+  private static copyProguard(result: IBuildResult) {
+    fse.copySync(`${result.dest}/proj/libcocosoppo/proguard-rules.pro`, `${result.dest}/proj/proguard-rules.pro`)
   }
 
   private static applyModuleBuild() {
     // 设置 build.gradle
     const appBuildGradlePath = `${Constants.NativePath}/app/build.gradle`;
     const appBuildGradle = fs.readFileSync(appBuildGradlePath, { encoding: 'binary' });
-    const applyModuleBuild = `apply from: RES_PATH + "/proj/libcocosoppo/build-app.gradle"`;
+    const applyModuleBuild = `apply from: RES_PATH + "/proj/build-ccams.gradle"`;
     const pos = appBuildGradle.indexOf(applyModuleBuild);
     if (pos < 0) {
       fs.writeFileSync(appBuildGradlePath, appBuildGradle + "\n" + applyModuleBuild + "\n");
