@@ -7,6 +7,8 @@ import com.cocos.lib.JsbBridgeWrapper;
 import com.cocos.service.SDKWrapper;
 import com.xiaomi.ad.mediation.MMAdConfig;
 import com.xiaomi.ad.mediation.MMAdError;
+import com.xiaomi.ad.mediation.fullscreeninterstitial.MMAdFullScreenInterstitial;
+import com.xiaomi.ad.mediation.fullscreeninterstitial.MMFullScreenInterstitialAd;
 import com.xiaomi.ad.mediation.internal.config.IMediationConfigInitListener;
 import com.xiaomi.ad.mediation.mimonew.MIMOAdSdkConfig;
 import com.xiaomi.ad.mediation.mimonew.MiMoNewSdk;
@@ -17,14 +19,16 @@ public class XiaoMiAdService implements SDKWrapper.SDKInterface {
     @Override
     public void init(Context context) {
         Log.i(Constants.TAG, "XiaoMi Ad SDK init");
-        JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.AD_INIT_EVENT, initListener);
-        JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.AD_LOAD_REWARDED_AD_EVENT, loadRewardedAdListener);
+        JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.AD_INIT, initListener);
+        JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.AD_LOAD_REWARDED_AD, loadRewardedAdListener);
+        JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.AD_LOAD_INTERSTITIAL_AD, loadInterstitialAdListener);
     }
 
     @Override
     public void onDestroy() {
-        JsbBridgeWrapper.getInstance().removeScriptEventListener(Constants.AD_INIT_EVENT, initListener);
-        JsbBridgeWrapper.getInstance().removeScriptEventListener(Constants.AD_LOAD_REWARDED_AD_EVENT, loadRewardedAdListener);
+        JsbBridgeWrapper.getInstance().removeScriptEventListener(Constants.AD_INIT, initListener);
+        JsbBridgeWrapper.getInstance().removeScriptEventListener(Constants.AD_LOAD_REWARDED_AD, loadRewardedAdListener);
+        JsbBridgeWrapper.getInstance().removeScriptEventListener(Constants.AD_LOAD_INTERSTITIAL_AD, loadInterstitialAdListener);
     }
 
     private final JsbBridgeWrapper.OnScriptEventListener initListener = new JsbBridgeWrapper.OnScriptEventListener() {
@@ -83,6 +87,37 @@ public class XiaoMiAdService implements SDKWrapper.SDKInterface {
                 @Override
                 public void onRewardVideoAdLoadError(MMAdError mmAdError) {
                     Log.e(Constants.TAG, "广告加载失败" + mmAdError.toString());
+                }
+            });
+        }
+    };
+
+    private final JsbBridgeWrapper.OnScriptEventListener loadInterstitialAdListener = new JsbBridgeWrapper.OnScriptEventListener() {
+        @Override
+        public void onScriptEvent(String arg) {
+            MMAdConfig adConfig = new MMAdConfig();
+            adConfig.supportDeeplink = true;
+            adConfig.imageWidth = 1080;
+            adConfig.imageHeight = 1920;
+            adConfig.viewWidth = 1080;
+            adConfig.viewHeight = 1920;
+            adConfig.interstitialOrientation = MMAdConfig.Orientation.ORIENTATION_VERTICAL;
+            adConfig.setInsertActivity(SDKWrapper.shared().getActivity());
+            MMAdFullScreenInterstitial interstitial = new MMAdFullScreenInterstitial(SDKWrapper.shared().getActivity(), "f0ef510a374af30dd32e3812f3120c88");
+            interstitial.onCreate(); //必须调用
+            interstitial.load(adConfig, new MMAdFullScreenInterstitial.FullScreenInterstitialAdListener() {
+                @Override
+                public void onFullScreenInterstitialAdLoaded(MMFullScreenInterstitialAd mmFullScreenInterstitialAd) {
+                    if (mmFullScreenInterstitialAd != null) {
+                        mmFullScreenInterstitialAd.showAd(SDKWrapper.shared().getActivity());
+                    } else {
+                        Log.e(Constants.TAG, "加载广告失败，无广告填充");
+                    }
+                }
+
+                @Override
+                public void onFullScreenInterstitialAdLoadError(MMAdError mmAdError) {
+                    Log.e(Constants.TAG, "加载广告失败, " + mmAdError.toString());
                 }
             });
         }

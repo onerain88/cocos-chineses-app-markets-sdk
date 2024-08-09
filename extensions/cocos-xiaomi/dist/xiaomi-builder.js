@@ -25,52 +25,73 @@ exports.BUILDER_OPTIONS = {
 };
 class XiaoMiBuilder {
     static afterBuild(options, result) {
-        // 1. 修改 libcocosxiaomi 中 AndroidManifest.xml 的配置
-        console.log(options.packages);
+        XiaoMiBuilder.copyModule(result);
+        XiaoMiBuilder.copyAndroidManifest(options, result);
+        XiaoMiBuilder.copyBuild(result);
+        XiaoMiBuilder.copyProguard(result);
+        XiaoMiBuilder.applyModuleBuild();
+        XiaoMiBuilder.applyProjectBuild(result);
+        utils_1.Utils.addServices(result, 'com.cocos.xiaomi.XiaoMiService');
+    }
+    static copyModule(result) {
+        fs_extra_1.default.copySync(`${__dirname}/../common/`, `${result.dest}/proj/libcocosxiaomi/`);
+    }
+    static copyAndroidManifest(options, result) {
+        // 1. 克隆 app/AndroidManifest.xml 到 proj 下
+        const appManifestPath = `${constants_1.Constants.NativePath}/app/AndroidManifest.xml`;
+        const projManifestPath = `${result.dest}/proj/AndroidManifest.xml`;
+        fs_extra_1.default.copySync(appManifestPath, projManifestPath);
         const { appId, appKey } = options.packages[global_1.PACKAGE_NAME];
         console.log('appId', appId, 'appKey', appKey);
-        const manifestPath = `${__dirname}/../common/libcocosxiaomi/src/main/AndroidManifest.xml`;
-        const META_DATA = 'meta-data';
         const parser = new fast_xml_parser_1.XMLParser(exports.PARSE_OPTIONS);
-        const androidManifest = parser.parse(fs_1.default.readFileSync(manifestPath, { encoding: 'binary' }));
+        const androidManifest = parser.parse(fs_1.default.readFileSync(projManifestPath, { encoding: 'binary' }));
         const manifest = androidManifest['manifest'];
-        const metadatas = manifest['application'][META_DATA];
-        metadatas.forEach(metadata => {
-            if (metadata['@_android:name'] === 'miGameAppId') {
-                metadata['@_android:value'] = appId;
-            }
-            else if (metadata['@_android:name'] === 'miGameAppKey') {
-                metadata['@_android:value'] = appKey;
-            }
-        });
+        utils_1.Utils.addComponent('meta-data', manifest, `
+      <meta-data 
+        android:name="miGameAppId" 
+        android:value="${appId}"/>
+        `);
+        utils_1.Utils.addComponent('meta-data', manifest, `
+      <meta-data 
+        android:name="miGameAppKey" 
+        android:value="${appKey}"/>
+        `);
+        utils_1.Utils.addComponent('meta-data', manifest, `
+      <meta-data 
+        android:name="miGameEnhance" 
+        android:value="true"/>
+        `);
+        utils_1.Utils.addComponent('provider', manifest, `
+      <provider 
+        android:name="com.xiaomi.gamecenter.sdk.MiOauthProvider" 
+        android:authorities="\${applicationId}.mi_provider" 
+        android:enabled="true" 
+        android:exported="false"/>
+        `);
         const builder = new fast_xml_parser_1.XMLBuilder(exports.BUILDER_OPTIONS);
-        fs_1.default.writeFileSync(manifestPath, builder.build(androidManifest));
-        // 2. 拷贝 libcocosxiaomi
-        fs_extra_1.default.copySync(`${__dirname}/../common/libcocosxiaomi/`, `${result.dest}/proj/libcocosxiaomi/`);
-        utils_1.Utils.addServices(result, 'com.cocos.xiaomi.XiaoMiService');
-        // 3. 添加模块
-        const settingsPath = `${result.dest}/proj/settings.gradle`;
-        const projSettings = fs_1.default.readFileSync(settingsPath, { encoding: 'binary' });
-        const includeLibXiaoMi = "include ':libcocosxiaomi'";
-        let pos = projSettings.indexOf(includeLibXiaoMi);
-        if (pos < 0) {
-            fs_1.default.writeFileSync(settingsPath, projSettings + "\n" + includeLibXiaoMi + "\n");
-        }
-        // 4. 添加子模块依赖
+        fs_1.default.writeFileSync(projManifestPath, builder.build(androidManifest));
+    }
+    static copyBuild(result) {
+        fs_extra_1.default.copySync(`${result.dest}/proj/libcocosxiaomi/build.gradle`, `${result.dest}/proj/build-ccams.gradle`);
+    }
+    static copyProguard(result) {
+        fs_extra_1.default.copySync(`${result.dest}/proj/libcocosxiaomi/proguard-rules.pro`, `${result.dest}/proj/proguard-rules.pro`);
+    }
+    static applyModuleBuild() {
+        // 设置 build.gradle
         const appBuildGradlePath = `${constants_1.Constants.NativePath}/app/build.gradle`;
         const appBuildGradle = fs_1.default.readFileSync(appBuildGradlePath, { encoding: 'binary' });
-        const dependentXiaoMiModule = `dependencies {
-    implementation project(':libcocosxiaomi')
-}`;
-        pos = appBuildGradle.indexOf(dependentXiaoMiModule);
+        const applyModuleBuild = `apply from: RES_PATH + "/proj/build-ccams.gradle"`;
+        const pos = appBuildGradle.indexOf(applyModuleBuild);
         if (pos < 0) {
-            fs_1.default.writeFileSync(appBuildGradlePath, appBuildGradle + "\n" + dependentXiaoMiModule + "\n");
+            fs_1.default.writeFileSync(appBuildGradlePath, appBuildGradle + "\n" + applyModuleBuild + "\n");
         }
-        // 5. 添加依赖仓库
+    }
+    static applyProjectBuild(result) {
         const projectBuildGradlePath = `${result.dest}/proj/build.gradle`;
         const projectBuildGradle = fs_1.default.readFileSync(projectBuildGradlePath, { encoding: 'binary' });
         const applyXiaoMiRepo = 'apply from: RES_PATH + "/proj/libcocosxiaomi/build-repo.gradle"';
-        pos = projectBuildGradle.indexOf(applyXiaoMiRepo);
+        const pos = projectBuildGradle.indexOf(applyXiaoMiRepo);
         if (pos < 0) {
             fs_1.default.writeFileSync(projectBuildGradlePath, projectBuildGradle + "\n" + applyXiaoMiRepo + "\n");
         }
