@@ -38,26 +38,33 @@ export class Demo extends Component {
 
   protected onLoad(): void {
     director.addPersistRootNode(this.node);
-    log('注册键盘事件');
-    input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
-    // 初始化
-    native.jsbBridgeWrapper.dispatchEventToNative(INIT);
-
-    // 初始化 Vivo 广告 SDK
-    native.jsbBridgeWrapper.dispatchEventToNative(AD_INIT);
 
     log('Demo 初始化');
-    native.jsbBridgeWrapper.addNativeEventListener(AD_LOAD_REWARD_AD_READY, this.loadRewardedAdReady);
-    native.jsbBridgeWrapper.addNativeEventListener(AD_LOAD_REWARDED_AD_VERIFY, this.loadRewardedAdVerify);
-    native.jsbBridgeWrapper.addNativeEventListener(AD_LOAD_REWARD_AD_FAILED, this.loadRewardedAdFailed);
+    if (sys.isNative) {
+      log('注册键盘事件');
+      input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
+      // 初始化
+      native.jsbBridgeWrapper.dispatchEventToNative(INIT);
+
+      // 初始化 Vivo 广告 SDK
+      native.jsbBridgeWrapper.dispatchEventToNative(AD_INIT);
+
+      native.jsbBridgeWrapper.addNativeEventListener(AD_LOAD_REWARD_AD_READY, this.loadRewardedAdReady);
+      native.jsbBridgeWrapper.addNativeEventListener(AD_LOAD_REWARDED_AD_VERIFY, this.loadRewardedAdVerify);
+      native.jsbBridgeWrapper.addNativeEventListener(AD_LOAD_REWARD_AD_FAILED, this.loadRewardedAdFailed);
+    } else if (sys.platform === sys.Platform.BYTEDANCE_MINI_GAME) {
+
+    }
   }
 
   protected onDestroy(): void {
-    input.off(Input.EventType.KEY_DOWN, this.onKeyDown, this);
+    if (sys.isNative) {
+      input.off(Input.EventType.KEY_DOWN, this.onKeyDown, this);
 
-    native.jsbBridgeWrapper.removeNativeEventListener(AD_LOAD_REWARD_AD_READY, this.loadRewardedAdReady);
-    native.jsbBridgeWrapper.removeNativeEventListener(AD_LOAD_REWARDED_AD_VERIFY, this.loadRewardedAdVerify);
-    native.jsbBridgeWrapper.removeNativeEventListener(AD_LOAD_REWARD_AD_FAILED, this.loadRewardedAdFailed);
+      native.jsbBridgeWrapper.removeNativeEventListener(AD_LOAD_REWARD_AD_READY, this.loadRewardedAdReady);
+      native.jsbBridgeWrapper.removeNativeEventListener(AD_LOAD_REWARDED_AD_VERIFY, this.loadRewardedAdVerify);
+      native.jsbBridgeWrapper.removeNativeEventListener(AD_LOAD_REWARD_AD_FAILED, this.loadRewardedAdFailed);
+    }
   }
 
   private onKeyDown(event: EventKeyboard) {
@@ -68,12 +75,52 @@ export class Demo extends Component {
     }
   }
 
-  private onLoadRewardedAdButtonClicked() {
-    native.jsbBridgeWrapper.dispatchEventToNative(AD_LOAD_REWARD_AD);
+  private async onLoadRewardedAdButtonClicked() {
+    if (sys.isNative) {
+      native.jsbBridgeWrapper.dispatchEventToNative(AD_LOAD_REWARD_AD);
+    } else {
+      if (sys.platform === sys.Platform.BYTEDANCE_MINI_GAME) {
+        const rewardAd = tt.createRewardedVideoAd({
+          adUnitId: '3cgcfm3ich83oj2ot5',
+        });
+        rewardAd.onClose(result => {
+          if (result.isEnded) {
+            // 播放完成
+            rewardAd.destroy();
+          }
+        })
+        try {
+          await rewardAd.load();
+          log('广告加载完成');
+          await rewardAd.show();
+          log('广告开始播放');
+          // 正常播放
+        } catch (e) {
+          // 播放异常
+          log(`广告异常: ${e}`);
+        }
+      }
+    }
   }
 
-  private onLoadInterstitialAdButtonClicked() {
-    native.jsbBridgeWrapper.dispatchEventToNative(AD_LOAD_INTERSTITIAL_AD);
+  private async onLoadInterstitialAdButtonClicked() {
+    if (sys.isNative) {
+      native.jsbBridgeWrapper.dispatchEventToNative(AD_LOAD_INTERSTITIAL_AD);
+    } else {
+      if (sys.platform === sys.Platform.BYTEDANCE_MINI_GAME) {
+        const ad = tt.createInterstitialAd({
+          adUnitId: "h7ag1cfh819ajv0940",
+        });
+        try {
+          await ad.load();
+          log('广告加载完成');
+          await ad.show();
+          log('广告展示完成');
+        } catch (e) {
+          log(`广告异常: ${e}`);
+        }
+      }
+    }
   }
 }
 
