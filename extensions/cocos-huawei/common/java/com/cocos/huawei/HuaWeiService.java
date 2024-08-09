@@ -27,7 +27,7 @@ public class HuaWeiService implements SDKWrapper.SDKInterface {
     public void init(Context context) {
         Log.i(Constants.TAG, "HuaWeiService init");
         // 注册桥接接口
-        JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.INIT_EVENT, initListener);
+        JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.INIT, initListener);
     }
 
     @Override

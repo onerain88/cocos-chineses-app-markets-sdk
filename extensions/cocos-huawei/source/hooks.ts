@@ -1,5 +1,6 @@
 import { BuildHook, IBuildResult, ITaskOptions } from '../@types';
 import { PACKAGE_NAME } from './global';
+import { HuaWeiAdBuilder } from './huawei-ad-builder';
 import { HuaWeiBuilder } from './huawei-builder';
 
 function log(...arg: any[]) {
@@ -36,6 +37,7 @@ export const onAfterCompressSettings: BuildHook.onAfterCompressSettings = async 
 
 export const onAfterBuild: BuildHook.onAfterBuild = async function (options: ITaskOptions, result: IBuildResult) {
   HuaWeiBuilder.afterBuild(options, result);
+  HuaWeiAdBuilder.afterBuild(options, result);
 };
 
 export const unload: BuildHook.unload = async function () {

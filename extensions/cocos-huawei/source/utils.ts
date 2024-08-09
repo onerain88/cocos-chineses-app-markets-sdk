@@ -2,21 +2,22 @@
 import * as fse from 'fs-extra';
 import * as fs from 'fs';
 import { IBuildResult, ITaskOptions } from '../@types';
+import { X2jOptions, XmlBuilderOptions, XMLParser } from 'fast-xml-parser';
 
-// export const PARSE_OPTIONS: X2jOptions = {
-//   ignoreAttributes: false,
-//   isArray: (tagName: string, jPath: string, isLeafNode: boolean, isAttribute: boolean) => {
-//     return tagName === "provider" || tagName === "activity" || tagName === "service" || tagName === "receiver" ||
-//       tagName === "meta-data" || tagName === "uses-permission";
-//   }
-// }
+export const PARSE_OPTIONS: X2jOptions = {
+  ignoreAttributes: false,
+  isArray: (tagName: string, jPath: string, isLeafNode: boolean, isAttribute: boolean) => {
+    return tagName === "provider" || tagName === "activity" || tagName === "service" || tagName === "receiver" ||
+      tagName === "meta-data" || tagName === "uses-permission";
+  }
+}
 
-// export const BUILDER_OPTIONS: XmlBuilderOptions = {
-//   ignoreAttributes: false,
-//   suppressBooleanAttributes: false,
-//   suppressEmptyNode: true,
-//   format: true,
-// }
+export const BUILDER_OPTIONS: XmlBuilderOptions = {
+  ignoreAttributes: false,
+  suppressBooleanAttributes: false,
+  suppressEmptyNode: true,
+  format: true,
+}
 
 export class Utils {
   // 同步地读取文件的所有行并返回内容数组
@@ -60,21 +61,21 @@ export class Utils {
     fs.writeFileSync(serviceJsonPath, JSON.stringify(serviceJson, null, 2));
   }
 
-  // public static addComponent(componentName: string, manifest: Object, compStr: string) {
-  //   const parser = new XMLParser({
-  //     ignoreAttributes: false
-  //   });
-  //   const component = parser.parse(compStr)[componentName];
+  public static addComponent(componentName: string, manifest: Object, compStr: string) {
+    const parser = new XMLParser({
+      ignoreAttributes: false
+    });
+    const component = parser.parse(compStr)[componentName];
 
-  //   const components = manifest['application'][componentName] as Object[];
-  //   if (!components) {
-  //     manifest['application'][componentName] = [component];
-  //   } else {
-  //     if (!components.find(c => c['@_android:name'] === component['@_android:name'])) {
-  //       components.push(component);
-  //     }
-  //   }
-  // }
+    const components = manifest['application'][componentName] as Object[];
+    if (!components) {
+      manifest['application'][componentName] = [component];
+    } else {
+      if (!components.find(c => c['@_android:name'] === component['@_android:name'])) {
+        components.push(component);
+      }
+    }
+  }
 
   public static addUsesPermission(manifest: Object, permission: string) {
     const usesPermissions = manifest['uses-permission'] as Object[];

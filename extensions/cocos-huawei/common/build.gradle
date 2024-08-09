@@ -1,0 +1,37 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://developer.huawei.com/repo/' }
+    }
+
+    dependencies {
+        classpath 'com.huawei.agconnect:agcp:1.9.1.301'
+    }
+}
+
+android {
+    sourceSets.main {
+        java.srcDirs += "${RES_PATH}/proj/libcocoshuawei/java"
+        jniLibs.srcDirs += "${RES_PATH}/proj/libcocoshuawei/libs"
+        res.srcDirs += "${RES_PATH}/proj/libcocoshuawei/res"
+        manifest.srcFile "${RES_PATH}/proj/AndroidManifest.xml"
+    }
+}
+
+android {
+  buildTypes {
+    release {
+      proguardFiles += "${RES_PATH}/proj/proguard-rules.pro"
+    }
+  }
+}
+
+repositories {
+    maven { url 'https://developer.huawei.com/repo/' }
+}
+
+dependencies {
+    implementation 'com.huawei.hms:hwid:6.12.0.300'
+    implementation 'com.huawei.hms:game:6.13.0.300'
+}

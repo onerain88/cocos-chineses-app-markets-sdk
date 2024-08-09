@@ -1,0 +1,3 @@
+dependencies {
+    implementation 'com.huawei.hms:ads-lite:13.4.73.301'
+}

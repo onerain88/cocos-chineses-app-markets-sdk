@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.onAfterMake = exports.onBeforeMake = exports.onError = exports.unload = exports.onAfterBuild = exports.onAfterCompressSettings = exports.onBeforeCompressSettings = exports.onBeforeBuild = exports.load = exports.throwError = void 0;
 const global_1 = require("./global");
+const huawei_ad_builder_1 = require("./huawei-ad-builder");
 const huawei_builder_1 = require("./huawei-builder");
 function log(...arg) {
     return console.log(`[${global_1.PACKAGE_NAME}] `, ...arg);
@@ -52,6 +53,7 @@ exports.onAfterCompressSettings = onAfterCompressSettings;
 const onAfterBuild = function (options, result) {
     return __awaiter(this, void 0, void 0, function* () {
         huawei_builder_1.HuaWeiBuilder.afterBuild(options, result);
+        huawei_ad_builder_1.HuaWeiAdBuilder.afterBuild(options, result);
     });
 };
 exports.onAfterBuild = onAfterBuild;

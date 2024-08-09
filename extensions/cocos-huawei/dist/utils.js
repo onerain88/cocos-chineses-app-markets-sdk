@@ -23,23 +23,24 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Utils = void 0;
+exports.Utils = exports.BUILDER_OPTIONS = exports.PARSE_OPTIONS = void 0;
 // import { X2jOptions, XmlBuilderOptions, XMLParser } from 'fast-xml-parser';
 const fse = __importStar(require("fs-extra"));
 const fs = __importStar(require("fs"));
-// export const PARSE_OPTIONS: X2jOptions = {
-//   ignoreAttributes: false,
-//   isArray: (tagName: string, jPath: string, isLeafNode: boolean, isAttribute: boolean) => {
-//     return tagName === "provider" || tagName === "activity" || tagName === "service" || tagName === "receiver" ||
-//       tagName === "meta-data" || tagName === "uses-permission";
-//   }
-// }
-// export const BUILDER_OPTIONS: XmlBuilderOptions = {
-//   ignoreAttributes: false,
-//   suppressBooleanAttributes: false,
-//   suppressEmptyNode: true,
-//   format: true,
-// }
+const fast_xml_parser_1 = require("fast-xml-parser");
+exports.PARSE_OPTIONS = {
+    ignoreAttributes: false,
+    isArray: (tagName, jPath, isLeafNode, isAttribute) => {
+        return tagName === "provider" || tagName === "activity" || tagName === "service" || tagName === "receiver" ||
+            tagName === "meta-data" || tagName === "uses-permission";
+    }
+};
+exports.BUILDER_OPTIONS = {
+    ignoreAttributes: false,
+    suppressBooleanAttributes: false,
+    suppressEmptyNode: true,
+    format: true,
+};
 class Utils {
     // 同步地读取文件的所有行并返回内容数组
     static readFileLines(filePath) {
@@ -78,20 +79,21 @@ class Utils {
         }
         fs.writeFileSync(serviceJsonPath, JSON.stringify(serviceJson, null, 2));
     }
-    // public static addComponent(componentName: string, manifest: Object, compStr: string) {
-    //   const parser = new XMLParser({
-    //     ignoreAttributes: false
-    //   });
-    //   const component = parser.parse(compStr)[componentName];
-    //   const components = manifest['application'][componentName] as Object[];
-    //   if (!components) {
-    //     manifest['application'][componentName] = [component];
-    //   } else {
-    //     if (!components.find(c => c['@_android:name'] === component['@_android:name'])) {
-    //       components.push(component);
-    //     }
-    //   }
-    // }
+    static addComponent(componentName, manifest, compStr) {
+        const parser = new fast_xml_parser_1.XMLParser({
+            ignoreAttributes: false
+        });
+        const component = parser.parse(compStr)[componentName];
+        const components = manifest['application'][componentName];
+        if (!components) {
+            manifest['application'][componentName] = [component];
+        }
+        else {
+            if (!components.find(c => c['@_android:name'] === component['@_android:name'])) {
+                components.push(component);
+            }
+        }
+    }
     static addUsesPermission(manifest, permission) {
         const usesPermissions = manifest['uses-permission'];
         let containsPermission = false;
