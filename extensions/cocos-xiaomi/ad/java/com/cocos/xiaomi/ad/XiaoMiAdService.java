@@ -12,6 +12,7 @@ import com.xiaomi.ad.mediation.fullscreeninterstitial.MMFullScreenInterstitialAd
 import com.xiaomi.ad.mediation.internal.config.IMediationConfigInitListener;
 import com.xiaomi.ad.mediation.mimonew.MIMOAdSdkConfig;
 import com.xiaomi.ad.mediation.mimonew.MiMoNewSdk;
+import com.xiaomi.ad.mediation.rewardvideoad.MMAdReward;
 import com.xiaomi.ad.mediation.rewardvideoad.MMAdRewardVideo;
 import com.xiaomi.ad.mediation.rewardvideoad.MMRewardVideoAd;
 
@@ -75,9 +76,46 @@ public class XiaoMiAdService implements SDKWrapper.SDKInterface {
             rewardVideo.load(adConfig, new MMAdRewardVideo.RewardVideoAdListener() {
                 @Override
                 public void onRewardVideoAdLoaded(MMRewardVideoAd mmRewardVideoAd) {
+                    JsbBridgeWrapper.getInstance().dispatchEventToScript(Constants.AD_LOAD_REWARDED_READY);
                     if (mmRewardVideoAd != null) {
-//                        rewardVideoAd = mmRewardVideoAd;
                         Log.i(Constants.TAG, "广告请求成功");
+                        mmRewardVideoAd.setInteractionListener(new MMRewardVideoAd.RewardVideoAdInteractionListener() {
+                            @Override
+                            public void onAdShown(MMRewardVideoAd mmRewardVideoAd) {
+                                Log.i(Constants.TAG, "激励广告展示");
+                            }
+
+                            @Override
+                            public void onAdClicked(MMRewardVideoAd mmRewardVideoAd) {
+                                Log.i(Constants.TAG, "激励广告点击");
+                            }
+
+                            @Override
+                            public void onAdError(MMRewardVideoAd mmRewardVideoAd, MMAdError mmAdError) {
+                                Log.i(Constants.TAG, "激励广告错误: " + mmAdError.toString());
+                            }
+
+                            @Override
+                            public void onAdVideoComplete(MMRewardVideoAd mmRewardVideoAd) {
+                                Log.i(Constants.TAG, "激励广告完成");
+                            }
+
+                            @Override
+                            public void onAdClosed(MMRewardVideoAd mmRewardVideoAd) {
+                                Log.i(Constants.TAG, "激励广告关闭");
+                            }
+
+                            @Override
+                            public void onAdReward(MMRewardVideoAd mmRewardVideoAd, MMAdReward mmAdReward) {
+                                Log.i(Constants.TAG, "激励广告奖励完成: " + mmAdReward.toString());
+                                JsbBridgeWrapper.getInstance().dispatchEventToScript(Constants.AD_SHOW_REWARD_VERIFY);
+                            }
+
+                            @Override
+                            public void onAdVideoSkipped(MMRewardVideoAd mmRewardVideoAd) {
+                                Log.i(Constants.TAG, "激励广告跳过");
+                            }
+                        });
                         mmRewardVideoAd.showAd(SDKWrapper.shared().getActivity());
                     } else {
                         Log.e(Constants.TAG, "广告请求成功，但无填充");
@@ -87,6 +125,7 @@ public class XiaoMiAdService implements SDKWrapper.SDKInterface {
                 @Override
                 public void onRewardVideoAdLoadError(MMAdError mmAdError) {
                     Log.e(Constants.TAG, "广告加载失败" + mmAdError.toString());
+                    JsbBridgeWrapper.getInstance().dispatchEventToScript(Constants.AD_LOAD_REWARDED_FAILED, mmAdError.toString());
                 }
             });
         }
