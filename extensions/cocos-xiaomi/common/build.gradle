@@ -1,0 +1,26 @@
+dependencies {
+    implementation fileTree(dir: "${RES_PATH}/proj/libcocosxiaomi/libs", includes: ['*.aar'])
+    def lastVersion = "3.4.3"
+    implementation "com.google.code.gson:gson:2.8.6"
+    implementation "com.google.zxing:core:3.2.0"
+    implementation "com.alipay.sdk:alipaysdk-android:15.8.09@aar"
+    implementation "com.xiaomi.gamecenter.sdk:mioauth:$lastVersion"
+    implementation "com.xiaomi.gamecenter.sdk:onetrack-sdk:2.2.1"
+}
+
+android {
+    sourceSets.main {
+        java.srcDirs += "${RES_PATH}/proj/libcocosxiaomi/java"
+        jniLibs.srcDirs += "${RES_PATH}/proj/libcocosxiaomi/libs"
+        res.srcDirs += "${RES_PATH}/proj/libcocosxiaomi/res"
+        manifest.srcFile "${RES_PATH}/proj/AndroidManifest.xml"
+    }
+}
+
+android {
+  buildTypes {
+    release {
+      proguardFiles += "${RES_PATH}/proj/proguard-rules.pro"
+    }
+  }
+}

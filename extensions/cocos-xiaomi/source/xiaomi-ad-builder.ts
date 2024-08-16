@@ -8,37 +8,23 @@ import { XMLBuilder, XMLParser } from 'fast-xml-parser';
 
 export class XiaoMiAdBuilder {
   public static afterBuild(options: ITaskOptions, result: IBuildResult) {
-    XiaoMiAdBuilder.copyDependencies();
-    XiaoMiAdBuilder.copyJava();
-    XiaoMiAdBuilder.copyLibs();
-    XiaoMiAdBuilder.copyManifest(options);
-    XiaoMiAdBuilder.copyRes(result);
+    XiaoMiAdBuilder.copyModule(result);
+    XiaoMiAdBuilder.appendManifest(options, result);
+    XiaoMiAdBuilder.appendBuild(result);
     Utils.addServices(result, 'com.cocos.xiaomi.ad.XiaoMiAdService');
-
-    const gradlePropertiesPath = `${result.dest}/proj/gradle.properties`;
-    const gradleProperties = fs.readFileSync(gradlePropertiesPath, { encoding: 'binary' });
-    const enableJetifier = "android.enableJetifier=true";
-
-    let pos = gradleProperties.indexOf(enableJetifier);
-    if (pos < 0) {
-      fs.writeFileSync(gradlePropertiesPath, gradleProperties + "\n" + enableJetifier + "\n");
-    }
+    this.enableJetifier(result);
   }
 
-  public static copyDependencies() {
-    Utils.appendDependencies(`${Constants.NativePath}/app/build.gradle`, `${__dirname}/../ad/build.gradle`);
+  private static copyModule(result: IBuildResult) {
+    fse.copySync(`${__dirname}/../ad/`, `${result.dest}/proj/libcocosxiaomi/`);
   }
 
-  public static copyJava() {
-    fse.copySync(`${__dirname}/../ad/java/`, `${Constants.NativePath}/app/src/`);
+  private static appendBuild(result: IBuildResult) {
+    fse.appendFileSync(`${result.dest}/proj/build-ccams.gradle`, `\n${fs.readFileSync(`${result.dest}/proj/libcocosxiaomi/build.gradle`, { encoding: 'binary' })}`)
   }
 
-  public static copyLibs() {
-    fse.copySync(`${__dirname}/../ad/libs/`, `${Constants.NativePath}/app/libs/`);
-  }
-
-  public static copyManifest(options: ITaskOptions) {
-    const manifestPath = `${Constants.NativePath}/app/AndroidManifest.xml`;
+  private static appendManifest(options: ITaskOptions, result: IBuildResult) {
+    const manifestPath = `${result.dest}/proj/AndroidManifest.xml`;
 
     const parser = new XMLParser(PARSE_OPTIONS);
     const androidManifest = parser.parse(fs.readFileSync(manifestPath, { encoding: 'binary' }));
@@ -71,10 +57,14 @@ export class XiaoMiAdBuilder {
     fs.writeFileSync(manifestPath, builder.build(androidManifest));
   }
 
-  public static copyRes(result: IBuildResult) {
-    const srcResPath = `${__dirname}/../ad/res/`;
-    const destResPath = `${result.dest}/proj/res/`;
+  private static enableJetifier(result: IBuildResult) {
+    const gradlePropertiesPath = `${result.dest}/proj/gradle.properties`;
+    const gradleProperties = fs.readFileSync(gradlePropertiesPath, { encoding: 'binary' });
+    const enableJetifier = "android.enableJetifier=true";
 
-    fse.copySync(srcResPath, destResPath, { overwrite: true });
+    let pos = gradleProperties.indexOf(enableJetifier);
+    if (pos < 0) {
+      fs.writeFileSync(gradlePropertiesPath, gradleProperties + "\n" + enableJetifier + "\n");
+    }
   }
 }
