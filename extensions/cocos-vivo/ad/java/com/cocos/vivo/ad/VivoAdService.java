@@ -43,7 +43,7 @@ public class VivoAdService implements SDKWrapper.SDKInterface {
             try {
                 VAdConfig config = new VAdConfig.Builder()
                         .setDebug(BuildConfig.DEBUG)
-                        .setMediaId("188bd66d899a46fa9521354dd5a43115")
+                        .setMediaId("b0b485ce794a42088f892ba8ba024aa0")
                         .build();
                 VivoAdManager.getInstance().init(SDKWrapper.shared().getActivity().getApplication(), config, new VInitCallback() {
                     @Override
@@ -64,6 +64,8 @@ public class VivoAdService implements SDKWrapper.SDKInterface {
 
     private static UnifiedVivoRewardVideoAd rewardedVideoAd;
     private static final UnifiedVivoRewardVideoAdListener rewardedVideoAdListener = new UnifiedVivoRewardVideoAdListener() {
+        private boolean verified = false;
+
         @Override
         public void onAdReady() {
             Log.i(TAG, "Rewarded Ad onAdReady");
@@ -92,11 +94,19 @@ public class VivoAdService implements SDKWrapper.SDKInterface {
         @Override
         public void onAdClose() {
             Log.i(TAG, "Rewarded Ad onAdClose");
+            try {
+                JSONObject data = new JSONObject();
+                data.put("verified", verified);
+                JsbBridgeWrapper.getInstance().dispatchEventToScript(Constants.AD_REWARDED_AD_CLOSE, data.toString());
+            } catch (Exception e) {
+                Log.e(TAG, "Rewarded Ad close error: " + e);
+            }
         }
 
         @Override
         public void onRewardVerify() {
             Log.i(TAG, "Rewarded Ad onRewardVerify");
+            verified = true;
             JsbBridgeWrapper.getInstance().dispatchEventToScript(Constants.AD_SHOW_REWARD_VERIFY);
         }
     };
@@ -106,7 +116,7 @@ public class VivoAdService implements SDKWrapper.SDKInterface {
         public void onScriptEvent(String arg) {
             Log.i(TAG, "Vivo ad load reward ad");
             try {
-                AdParams params = new AdParams.Builder("b042370b5b0e40479423438643f6c408")
+                AdParams params = new AdParams.Builder("3f0f0fdf3fa34506a2fb32fa49697ad5")
                         .build();
                 rewardedVideoAd = new UnifiedVivoRewardVideoAd(SDKWrapper.shared().getActivity(), params, rewardedVideoAdListener);
                 rewardedVideoAd.loadAd();
@@ -122,7 +132,7 @@ public class VivoAdService implements SDKWrapper.SDKInterface {
         @Override
         public void onScriptEvent(String arg) {
             Log.i(TAG, "Vivo ad load interstitial ad");
-            String posId = "591a9892ac5d47c3a2dc5b9e16eb1f85";
+            String posId = "bea46ccfdb9d4ff4b321a24e2a9f627e";
             AdParams.Builder builder = new AdParams.Builder(posId);
             interstitialAd = new UnifiedVivoInterstitialAd(SDKWrapper.shared().getActivity(), builder.build(), new UnifiedVivoInterstitialAdListener() {
                 @Override
