@@ -16,6 +16,8 @@ import com.xiaomi.ad.mediation.rewardvideoad.MMAdReward;
 import com.xiaomi.ad.mediation.rewardvideoad.MMAdRewardVideo;
 import com.xiaomi.ad.mediation.rewardvideoad.MMRewardVideoAd;
 
+import org.json.JSONObject;
+
 public class XiaoMiAdService implements SDKWrapper.SDKInterface {
     @Override
     public void init(Context context) {
@@ -39,8 +41,8 @@ public class XiaoMiAdService implements SDKWrapper.SDKInterface {
                     .setDebug(true)
                     .build();
             MiMoNewSdk.init(SDKWrapper.shared().getActivity(),
-                    "2882303761520331204",
-                    "天天数独",
+                    "2882303761520342105",
+                    "方块消除大师",
                     config,
                     new IMediationConfigInitListener() {
                         @Override
@@ -70,7 +72,7 @@ public class XiaoMiAdService implements SDKWrapper.SDKInterface {
             adConfig.rewardCount = 5;
 
             adConfig.setRewardVideoActivity(SDKWrapper.shared().getActivity());
-            MMAdRewardVideo rewardVideo = new MMAdRewardVideo(SDKWrapper.shared().getActivity(), "2e62a9cab5184a9d9635545ee7e3bdf4");
+            MMAdRewardVideo rewardVideo = new MMAdRewardVideo(SDKWrapper.shared().getActivity(), "c4408a1bdfc99baef6fc8b094cabefd5");
             rewardVideo.onCreate(); //必须调用，用于统计
 
             rewardVideo.load(adConfig, new MMAdRewardVideo.RewardVideoAdListener() {
@@ -80,6 +82,8 @@ public class XiaoMiAdService implements SDKWrapper.SDKInterface {
                     if (mmRewardVideoAd != null) {
                         Log.i(Constants.TAG, "广告请求成功");
                         mmRewardVideoAd.setInteractionListener(new MMRewardVideoAd.RewardVideoAdInteractionListener() {
+                            private boolean verified = false;
+
                             @Override
                             public void onAdShown(MMRewardVideoAd mmRewardVideoAd) {
                                 Log.i(Constants.TAG, "激励广告展示");
@@ -103,11 +107,19 @@ public class XiaoMiAdService implements SDKWrapper.SDKInterface {
                             @Override
                             public void onAdClosed(MMRewardVideoAd mmRewardVideoAd) {
                                 Log.i(Constants.TAG, "激励广告关闭");
+                                try {
+                                    JSONObject data = new JSONObject();
+                                    data.put("verified", verified);
+                                    JsbBridgeWrapper.getInstance().dispatchEventToScript(Constants.AD_REWARDED_AD_CLOSE, data.toString());
+                                } catch (Exception e) {
+                                    Log.e(Constants.TAG, "Rewarded Ad close error: " + e);
+                                }
                             }
 
                             @Override
                             public void onAdReward(MMRewardVideoAd mmRewardVideoAd, MMAdReward mmAdReward) {
                                 Log.i(Constants.TAG, "激励广告奖励完成: " + mmAdReward.toString());
+                                verified = true;
                                 JsbBridgeWrapper.getInstance().dispatchEventToScript(Constants.AD_SHOW_REWARD_VERIFY);
                             }
 
@@ -142,7 +154,7 @@ public class XiaoMiAdService implements SDKWrapper.SDKInterface {
             adConfig.viewHeight = 1920;
             adConfig.interstitialOrientation = MMAdConfig.Orientation.ORIENTATION_VERTICAL;
             adConfig.setInsertActivity(SDKWrapper.shared().getActivity());
-            MMAdFullScreenInterstitial interstitial = new MMAdFullScreenInterstitial(SDKWrapper.shared().getActivity(), "f0ef510a374af30dd32e3812f3120c88");
+            MMAdFullScreenInterstitial interstitial = new MMAdFullScreenInterstitial(SDKWrapper.shared().getActivity(), "6ab54b02ac8a11e97ab9b2c5ed58c6c9");
             interstitial.onCreate(); //必须调用
             interstitial.load(adConfig, new MMAdFullScreenInterstitial.FullScreenInterstitialAdListener() {
                 @Override
