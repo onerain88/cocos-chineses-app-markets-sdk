@@ -16,7 +16,7 @@ dependencies {
     implementation 'androidx.palette:palette:1.0.0'//490版本新增
 
     //由于可能与接入业务产生冲突，故由开发者决定依赖的版本，wechat sdk区分wechat-sdk-android与wechat-sdk-android-without-mta,由开发者决定依赖版本
-//    implementation "com.tencent.mm.opensdk:wechat-sdk-android-without-mta:5.5.8"//注意630版本对微信OpenSDK有依赖，接入流程可参考文末附录。
+    implementation "com.tencent.mm.opensdk:wechat-sdk-android-without-mta:6.8.0"//注意630版本对微信OpenSDK有依赖，接入流程可参考文末附录。
 
     //implementation 'androidx.appcompat:appcompat:1.0.2'//注意500版本之后强要求依赖
     implementation 'androidx.recyclerview:recyclerview:1.0.0'//注意500版本之后强要求依赖

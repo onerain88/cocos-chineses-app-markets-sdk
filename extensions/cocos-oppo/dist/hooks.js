@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.onAfterMake = exports.onBeforeMake = exports.onError = exports.unload = exports.onAfterBuild = exports.onAfterCompressSettings = exports.onBeforeCompressSettings = exports.onBeforeBuild = exports.load = exports.throwError = void 0;
 const global_1 = require("./global");
+const oppo_ad_builder_1 = require("./oppo-ad-builder");
 const oppo_builder_1 = require("./oppo-builder");
 function log(...arg) {
     return console.log(`[${global_1.PACKAGE_NAME}] `, ...arg);
@@ -49,6 +50,7 @@ exports.onAfterCompressSettings = onAfterCompressSettings;
 const onAfterBuild = function (options, result) {
     return __awaiter(this, void 0, void 0, function* () {
         oppo_builder_1.OppoBuilder.afterBuild(options, result);
+        oppo_ad_builder_1.OppoAdBuilder.afterBuild(options, result);
     });
 };
 exports.onAfterBuild = onAfterBuild;

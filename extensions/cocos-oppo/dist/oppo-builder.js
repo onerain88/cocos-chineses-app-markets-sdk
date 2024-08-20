@@ -42,16 +42,6 @@ class OppoBuilder {
     static copyModule(result) {
         fse.copySync(`${__dirname}/../common/`, `${result.dest}/proj/libcocosoppo/`);
     }
-    static includeProguard(result) {
-        // 使用 -include 语法
-        const proguardPath = `${constants_1.Constants.NativePath}/app/proguard-rules.pro`;
-        const proguard = fs.readFileSync(proguardPath, { encoding: 'binary' });
-        const includeOppoProguard = `-include "${result.dest}/proj/libcocosoppo/proguard-rules.pro"`;
-        const pos = proguard.indexOf(includeOppoProguard);
-        if (pos < 0) {
-            fs.writeFileSync(proguardPath, proguard + "\n" + includeOppoProguard + "\n");
-        }
-    }
     static copyAndroidManifest(options, result) {
         // 1. 克隆 app/AndroidManifest.xml 到 proj 下
         const appManifestPath = `${constants_1.Constants.NativePath}/app/AndroidManifest.xml`;
