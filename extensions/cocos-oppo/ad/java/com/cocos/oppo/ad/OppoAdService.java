@@ -14,6 +14,8 @@ import com.heytap.msp.mobad.api.listener.IInterstitialVideoAdListener;
 import com.heytap.msp.mobad.api.listener.IRewardVideoAdListener;
 import com.heytap.msp.mobad.api.params.RewardVideoAdParams;
 
+import org.json.JSONObject;
+
 public class OppoAdService implements SDKWrapper.SDKInterface {
     private final static String APP_ID = "31807821";
     private final static String REWARD_AD_POS_ID = "1668945";
@@ -52,6 +54,8 @@ public class OppoAdService implements SDKWrapper.SDKInterface {
         public void onScriptEvent(String arg) {
             Log.i(Constants.TAG, "Oppo ad load reward ad");
             rewardVideoAd = new RewardVideoAd(SDKWrapper.shared().getActivity(), REWARD_AD_POS_ID, new IRewardVideoAdListener() {
+                private boolean verified = false;
+
                 @Override
                 public void onAdSuccess() {
                     Log.i(Constants.TAG, "Oppo ad load rewarded Ad success");
@@ -94,6 +98,13 @@ public class OppoAdService implements SDKWrapper.SDKInterface {
                 @Override
                 public void onVideoPlayClose(long l) {
                     Log.i(Constants.TAG, "Oppo ad load rewarded Ad play close");
+                    try {
+                        JSONObject data = new JSONObject();
+                        data.put("verified", verified);
+                        JsbBridgeWrapper.getInstance().dispatchEventToScript(Constants.AD_REWARDED_AD_CLOSE, data.toString());
+                    } catch (Exception e) {
+                        Log.e(Constants.TAG, "Rewarded Ad close error: " + e);
+                    }
                 }
 
                 @Override
@@ -109,6 +120,7 @@ public class OppoAdService implements SDKWrapper.SDKInterface {
                 @Override
                 public void onReward(Object... objects) {
                     Log.i(Constants.TAG, "Oppo ad load rewarded Ad reward");
+                    verified = true;
                     JsbBridgeWrapper.getInstance().dispatchEventToScript(Constants.AD_SHOW_REWARD_VERIFY);
                 }
             });
