@@ -1,6 +1,7 @@
 package com.cocos.oppo;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.cocos.lib.JsbBridgeWrapper;
 import com.cocos.service.SDKWrapper;
@@ -14,12 +15,14 @@ public class OppoService implements SDKWrapper.SDKInterface {
     // 注册桥接事件
     JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.INIT, initListener);
     JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.EXIT_GAME, exitGameListener);
+    JsbBridgeWrapper.getInstance().addScriptEventListener(Constants.JUMP_LEISURE_SUBJECT, jumpLeisureSubjectListener);
   }
 
   @Override
   public void onDestroy() {
     JsbBridgeWrapper.getInstance().removeScriptEventListener(Constants.INIT, initListener);
     JsbBridgeWrapper.getInstance().removeScriptEventListener(Constants.EXIT_GAME, exitGameListener);
+    JsbBridgeWrapper.getInstance().removeScriptEventListener(Constants.JUMP_LEISURE_SUBJECT, jumpLeisureSubjectListener);
   }
 
   private final JsbBridgeWrapper.OnScriptEventListener initListener = new JsbBridgeWrapper.OnScriptEventListener() {
@@ -29,12 +32,13 @@ public class OppoService implements SDKWrapper.SDKInterface {
       GameCenterSDK.getInstance().doLogin(SDKWrapper.shared().getActivity(), new ApiCallback() {
         @Override
         public void onSuccess(String resultMsg) {
-
+          Log.i(Constants.TAG, "Oppo 登录成功: " + resultMsg);
+          JsbBridgeWrapper.getInstance().dispatchEventToScript(Constants.LOGIN_SUCCESS);
         }
 
         @Override
         public void onFailure(String resultMsg, int resultCode) {
-
+          Log.i(Constants.TAG, "Oppo 登录失败: " + resultCode + ", " + resultMsg);
         }
       });
     }
@@ -49,6 +53,13 @@ public class OppoService implements SDKWrapper.SDKInterface {
           android.os.Process.killProcess(android.os.Process.myPid());
         }
       });
+    }
+  };
+
+  private final JsbBridgeWrapper.OnScriptEventListener jumpLeisureSubjectListener = new JsbBridgeWrapper.OnScriptEventListener() {
+    @Override
+    public void onScriptEvent(String arg) {
+      GameCenterSDK.getInstance().jumpLeisureSubject();
     }
   };
 }
