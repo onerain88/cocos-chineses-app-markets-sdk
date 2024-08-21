@@ -33,6 +33,7 @@ class XiaoMiAdBuilder {
         XiaoMiAdBuilder.copyModule(result);
         XiaoMiAdBuilder.appendManifest(options, result);
         XiaoMiAdBuilder.appendBuild(result);
+        XiaoMiAdBuilder.appendProguard(result);
         utils_1.Utils.addServices(result, 'com.cocos.xiaomi.ad.XiaoMiAdService');
         this.enableJetifier(result);
     }
@@ -78,6 +79,9 @@ class XiaoMiAdBuilder {
         if (pos < 0) {
             fs.writeFileSync(gradlePropertiesPath, gradleProperties + "\n" + enableJetifier + "\n");
         }
+    }
+    static appendProguard(result) {
+        fse.appendFileSync(`${result.dest}/proj/proguard-rules.pro`, `\n${fs.readFileSync(`${result.dest}/proj/libcocosxiaomi/proguard-rules.pro`, { encoding: 'binary' })}`);
     }
 }
 exports.XiaoMiAdBuilder = XiaoMiAdBuilder;
