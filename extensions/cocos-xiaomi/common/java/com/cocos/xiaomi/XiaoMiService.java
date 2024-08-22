@@ -34,6 +34,9 @@ public class XiaoMiService implements SDKWrapper.SDKInterface {
                 @Override
                 public void finishLoginProcess(int i, MiAccountInfo miAccountInfo) {
                     Log.i(Constants.TAG, "XiaoMi SDK login: " + i + miAccountInfo.toString());
+                    if (i == MiErrorCode.MI_XIAOMI_GAMECENTER_SUCCESS) {
+                        JsbBridgeWrapper.getInstance().dispatchEventToScript(Constants.LOGIN_SUCCESS);
+                    }
                 }
             });
         }
