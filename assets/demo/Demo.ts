@@ -4,6 +4,7 @@ const { ccclass, property } = _decorator;
 // 通用
 const INIT = 'ccams_init';
 const EXIT_GAME = 'ccams_exit_game';
+const LOGIN_SUCCESS = 'ccams_login_success';
 
 // 广告
 const AD_INIT = 'ccams_ad_init';
@@ -19,6 +20,11 @@ const AD_LOAD_INTERSTITIAL_AD = 'ccams_ad_load_interstitial_ad';
 export class Demo extends Component {
   @property(Label)
   public infoLabel: Label = null;
+
+  private loginSuccessListener: native.OnNativeEventListener = () => {
+    log(`demo: 初始化/登录成功`);
+    this.infoLabel.string = '初始化/登录成功'
+  }
 
   private loadRewardedAdReady: native.OnNativeEventListener = () => {
     log(`demo: vivo_ad_loadRewardedAd 加载完成`);
@@ -40,6 +46,7 @@ export class Demo extends Component {
     director.addPersistRootNode(this.node);
 
     log('Demo 初始化');
+    this.infoLabel.string = '平台 SDK 初始化中 ...';
     if (sys.isNative) {
       log('注册键盘事件');
       input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
@@ -48,6 +55,8 @@ export class Demo extends Component {
 
       // 初始化 Vivo 广告 SDK
       native.jsbBridgeWrapper.dispatchEventToNative(AD_INIT);
+
+      native.jsbBridgeWrapper.addNativeEventListener(LOGIN_SUCCESS, this.loginSuccessListener);
 
       native.jsbBridgeWrapper.addNativeEventListener(AD_LOAD_REWARD_AD_READY, this.loadRewardedAdReady);
       native.jsbBridgeWrapper.addNativeEventListener(AD_LOAD_REWARDED_AD_VERIFY, this.loadRewardedAdVerify);
