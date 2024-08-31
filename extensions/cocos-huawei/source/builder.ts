@@ -13,12 +13,11 @@ export const configs: BuildPlugin.Configs = {
     hooks: './hooks',
     doc: 'editor/publish/custom-build-plugin.html',
     options: {
-      enableAdMob: {
-        label: `i18n:${PACKAGE_NAME}.enableAdMob.title`,
-        description: `i18n:${PACKAGE_NAME}.enableAdMob.tip`,
+      enable: {
+        label: `i18n:${PACKAGE_NAME}.options.enable`,
         default: `true`,
         render: {
-          ui: 'ui-checkbox',
+          ui: 'ui-text',
         },
       },
     },

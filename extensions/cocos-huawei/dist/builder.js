@@ -15,12 +15,11 @@ exports.configs = {
         hooks: './hooks',
         doc: 'editor/publish/custom-build-plugin.html',
         options: {
-            enableAdMob: {
-                label: `i18n:${global_1.PACKAGE_NAME}.enableAdMob.title`,
-                description: `i18n:${global_1.PACKAGE_NAME}.enableAdMob.tip`,
+            enable: {
+                label: `i18n:${global_1.PACKAGE_NAME}.options.enable`,
                 default: `true`,
                 render: {
-                    ui: 'ui-checkbox',
+                    ui: 'ui-text',
                 },
             },
         },
