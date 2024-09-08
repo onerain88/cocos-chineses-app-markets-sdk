@@ -18,6 +18,9 @@ const AD_LOAD_INTERSTITIAL_AD = 'ccams_ad_load_interstitial_ad';
 @ccclass('Demo')
 export class Demo extends Component {
   @property(Label)
+  public packageNameLabel: Label = null;
+
+  @property(Label)
   public infoLabel: Label = null;
 
   private loadRewardedAdReady: native.OnNativeEventListener = () => {
@@ -38,6 +41,11 @@ export class Demo extends Component {
 
   protected onLoad(): void {
     director.addPersistRootNode(this.node);
+
+    const packageName = native.reflection.callStaticMethod('com/ihg/common/PackageUtils',
+      'getPackageName',
+      '()Ljava/lang/String;');
+    this.packageNameLabel.string = packageName;
 
     log('Demo 初始化');
     if (sys.isNative) {

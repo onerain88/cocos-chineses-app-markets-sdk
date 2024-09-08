@@ -1,0 +1,13 @@
+android {
+    sourceSets.main {
+        java.srcDirs += "${RES_PATH}/proj/libihgcommon/java"
+    }
+}
+
+android {
+  buildTypes {
+    release {
+      proguardFiles += "${RES_PATH}/proj/proguard-rules-ihg.pro"
+    }
+  }
+}
